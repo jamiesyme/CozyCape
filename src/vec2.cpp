@@ -101,4 +101,30 @@ Vec2 Vec2::operator/(const float f) const
 	return Vec2(this->x / f, this->y / f);
 }
 
+float Vec2::getMag() const
+{
+	return std::sqrt(x * x + y * y);
+}
+
+float Vec2::getSqrMag() const
+{
+	return x * x + y * y;
+}
+
+Vec2 Vec2::getNormalized() const
+{
+	const float mag = getMag();
+	if (mag == 0.0f)
+		return Vec2();
+	return (*this) / mag;
+}
+
+void Vec2::normalize()
+{
+	const float mag = getMag();
+	if (mag == 0.0f)
+		(*this) = Vec2();
+	(*this) /= mag;
+}
+
 

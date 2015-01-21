@@ -26,4 +26,8 @@ public:
 	Vec2 operator*(const float f) const;
 	Vec2 operator/(const float f) const;
 	
+	float getMag() const;
+	float getSqrMag() const;
+	Vec2  getNormalized() const;
+	void  normalize();
 };
