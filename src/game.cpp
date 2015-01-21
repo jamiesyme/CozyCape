@@ -3,8 +3,8 @@
 #include "clock.hpp"
 #include "events.hpp"
 #include "entity.hpp"
+#include "commongl.hpp"
 #include <vector>
-#include <GL/gl.h>
 
 // "Game" specific data
 namespace {
@@ -35,12 +35,10 @@ void Game::run()
 	Events::addEar(&gEar);
 	
 	// Initialize opengl
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0, 16.0, 12.0, 0.0, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	CommonGL::setOrtho(Vec2(0.0f, 16.0f),
+										 Vec2(12.0f, 0.0f),
+										 Vec2(-1.0f, 1.0f));
+	CommonGL::setBgColor(Color::White);
 	
 	// Create the player
 	Entity* player = new Entity();
@@ -60,7 +58,7 @@ void Game::run()
 			gEnts[i]->onTick();
 		
 		// Game Drawing
-		glClear(GL_COLOR_BUFFER_BIT);
+		CommonGL::clearColor();
 		for (unsigned int i = 0; i < gEnts.size(); i++)
 			gEnts[i]->onDraw();
 		Window::swap();
