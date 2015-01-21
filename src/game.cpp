@@ -42,7 +42,7 @@ void Game::run()
 		// Perform drawing, logic, etc...
 		
 		// Cap the framerate at 60
-		Clock::sleepFor((1.0 / 60.0) - dt.get());
+		Clock::sleepFor((1.0 / 60.0) - frameCapTimer.get());
 		frameCapTimer.set(0.0);
 	}
 	
