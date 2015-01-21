@@ -4,6 +4,7 @@ namespace Clock {
 	double getRawTime();
 	double getTime();
 	void   setTime(double time);
+	void   sleepFor(double time);
 	
 	
 	class Timer {

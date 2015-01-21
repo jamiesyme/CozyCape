@@ -1,5 +1,7 @@
 #include "clock.hpp"
 #include <SDL2/SDL.h>
+#include <thread>
+#include <chrono>
 
 static Clock::Timer gTimer;
 
@@ -14,6 +16,13 @@ namespace Clock {
 
 	void setTime(double time) { 
 		gTimer.set(time); 
+	}
+	
+	void sleepFor(double time) {
+		if (time <= 0.0)
+			return;
+		const int milli = (int)(time * 1000.0);
+		std::this_thread::sleep_for(std::chrono::milliseconds(milli));
 	}
 	
 	
