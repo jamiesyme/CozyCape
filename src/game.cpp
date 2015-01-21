@@ -2,6 +2,7 @@
 #include "window.hpp"
 #include "clock.hpp"
 #include "events.hpp"
+#include <iostream>
 
 // "Game" specific data
 namespace {
@@ -32,10 +33,17 @@ void Game::run()
 	
 	// Run the game loop
 	gIsRunning = true;
+	Clock::Timer frameCapTimer;
 	while (gIsRunning) 
 	{
 		// Poll for new events
 		Events::poll();
+		
+		// Perform drawing, logic, etc...
+		
+		// Cap the framerate at 60
+		Clock::sleepFor((1.0 / 60.0) - dt.get());
+		frameCapTimer.set(0.0);
 	}
 	
 	// Close the basics
