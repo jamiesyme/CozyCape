@@ -61,6 +61,9 @@ void Game::run()
 		// Game Logic
 		Map::onTick();
 		
+		// Game Physics
+		Map::onPhysics();
+		
 		// Game Drawing
 		CommonGL::clearColor();
 		Map::onDraw();

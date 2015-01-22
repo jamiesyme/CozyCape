@@ -8,6 +8,7 @@ namespace Map {
 	
 	void onTick();
 	void onDraw();
+	void onPhysics();
 	
 	void  manageEntity(Entity* e);
 	void destroyEntity(Entity* e);

@@ -2,6 +2,7 @@
 #include "entity.hpp"
 #include <GL/gl.h>
 #include <vector>
+#include <cmath>
 
 namespace {
 	std::vector<Entity*> gEnts;
@@ -55,6 +56,35 @@ void Map::onDraw()
 	
 	for (unsigned int i = 0; i < gEnts.size(); i++)
 		gEnts[i]->onDraw();
+}
+
+void Map::onPhysics()
+{
+	for (unsigned int i = 0; i < gEnts.size(); i++)
+	{
+		Entity* ent  = gEnts[i];
+		Vec2  pos    = ent->getPos();
+		float radius = ent->getRadius();
+		
+		// Check right tile
+		Vec2 tile = Vec2(std::floor(pos.x + radius), std::floor(pos.y));
+		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
+			pos.x = tile.x - radius;
+		// Check left tile
+		tile = Vec2(std::floor(pos.x - radius), std::floor(pos.y));
+		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
+			pos.x = tile.x + radius + 1;
+		// Check top tile
+		tile = Vec2(std::floor(pos.x), std::floor(pos.y + radius));
+		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
+			pos.y = tile.y - radius;
+		// Check bottom tile
+		tile = Vec2(std::floor(pos.x), std::floor(pos.y - radius));
+		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
+			pos.y = tile.y + radius + 1;
+			
+		ent->setPos(pos);
+	}
 }
 
 void Map::manageEntity(Entity* e)
