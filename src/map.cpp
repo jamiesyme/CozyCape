@@ -63,6 +63,9 @@ void Map::onPhysics()
 	for (unsigned int i = 0; i < gEnts.size(); i++)
 	{
 		Entity* ent  = gEnts[i];
+		if (!ent->isSolid())
+			continue;
+		
 		Vec2    pos  = ent->getPos();
 		const float radius    = ent->getRadius();
 		const float radiusSqr = radius * radius;

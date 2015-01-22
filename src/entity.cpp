@@ -4,6 +4,7 @@
 Entity::Entity()
 {
 	mRadius = 0.5f;
+	mIsSolid = true;
 }
 
 Entity::~Entity()
@@ -47,4 +48,14 @@ void Entity::setRadius(const float r)
 float Entity::getRadius() const
 {
 	return mRadius;
+}
+
+void Entity::setSolid(const bool s)
+{
+	mIsSolid = s;
+}
+
+bool Entity::isSolid() const
+{
+	return mIsSolid;
 }

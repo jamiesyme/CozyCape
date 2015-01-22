@@ -16,8 +16,12 @@ public:
 	
 	void  setRadius(const float r);
 	float getRadius() const;
+	
+	void setSolid(const bool s);
+	bool  isSolid() const;
 
 private:
+	bool  mIsSolid;
 	Vec2  mPos;
 	float mRadius;
 };
