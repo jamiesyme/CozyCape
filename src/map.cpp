@@ -63,26 +63,79 @@ void Map::onPhysics()
 	for (unsigned int i = 0; i < gEnts.size(); i++)
 	{
 		Entity* ent  = gEnts[i];
-		Vec2  pos    = ent->getPos();
-		float radius = ent->getRadius();
+		Vec2    pos  = ent->getPos();
+		const float radius    = ent->getRadius();
+		const float radiusSqr = radius * radius;
 		
 		// Check right tile
-		Vec2 tile = Vec2(std::floor(pos.x + radius), std::floor(pos.y));
-		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
-			pos.x = tile.x - radius;
-		// Check left tile
-		tile = Vec2(std::floor(pos.x - radius), std::floor(pos.y));
-		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
-			pos.x = tile.x + radius + 1;
-		// Check top tile
-		tile = Vec2(std::floor(pos.x), std::floor(pos.y + radius));
-		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
-			pos.y = tile.y - radius;
-		// Check bottom tile
-		tile = Vec2(std::floor(pos.x), std::floor(pos.y - radius));
-		if (Map::getTile((int)tile.x, (int)tile.y) != 0)
-			pos.y = tile.y + radius + 1;
+		const Vec2 rTile = Vec2(std::floor(pos.x + radius),
+		                        std::floor(pos.y));
+		if (Map::getTile((int)rTile.x, (int)rTile.y) != 0)
+			pos.x = rTile.x - radius;
 			
+		// Check left tile
+		const Vec2 lTile = Vec2(std::floor(pos.x - radius),
+		                        std::floor(pos.y));
+		if (Map::getTile((int)lTile.x, (int)lTile.y) != 0)
+			pos.x = lTile.x + radius + 1;
+		
+		// Check top tile
+		const Vec2 tTile = Vec2(std::floor(pos.x),
+		                        std::floor(pos.y + radius));
+		if (Map::getTile((int)tTile.x, (int)tTile.y) != 0)
+			pos.y = tTile.y - radius;
+		                        
+		// Check bottom tile
+		const Vec2 bTile = Vec2(std::floor(pos.x),
+		                        std::floor(pos.y - radius));
+		if (Map::getTile((int)bTile.x, (int)bTile.y) != 0)
+			pos.y = bTile.x + radius + 1;
+		
+		// Check top right
+		const Vec2 trTile = Vec2(std::floor(pos.x + radius),
+		                         std::floor(pos.y + radius));
+		if (Map::getTile((int)trTile.x, (int)trTile.y) != 0) {
+			const float distSqr = (pos - trTile).getSqrMag();
+			if (distSqr < radiusSqr) {
+				const float diff = radius - std::sqrt(distSqr);
+				pos -= (trTile - pos).getNormalized() * diff;
+			}
+		}
+		
+		// Check top left
+		const Vec2 tlTile = Vec2(std::floor(pos.x - radius) + 1.0f,
+		                         std::floor(pos.y + radius));
+		if (Map::getTile((int)tlTile.x - 1, (int)tlTile.y) != 0) {
+			const float distSqr = (pos - tlTile).getSqrMag();
+			if (distSqr < radiusSqr) {
+				const float diff = radius - std::sqrt(distSqr);
+				pos -= (tlTile - pos).getNormalized() * diff;
+			}
+		}
+		
+		// Check bottom right
+		const Vec2 brTile = Vec2(std::floor(pos.x + radius),
+		                         std::floor(pos.y - radius) + 1.0f);
+		if (Map::getTile((int)brTile.x, (int)brTile.y - 1) != 0) {
+			const float distSqr = (pos - brTile).getSqrMag();
+			if (distSqr < radiusSqr) {
+				const float diff = radius - std::sqrt(distSqr);
+				pos -= (brTile - pos).getNormalized() * diff;
+			}
+		}
+		
+		// Check bottom left
+		const Vec2 blTile = Vec2(std::floor(pos.x - radius) + 1.0f,
+		                         std::floor(pos.y - radius) + 1.0f);
+		if (Map::getTile((int)blTile.x - 1, (int)blTile.y - 1) != 0) {
+			const float distSqr = (pos - blTile).getSqrMag();
+			if (distSqr < radiusSqr) {
+				const float diff = radius - std::sqrt(distSqr);
+				pos -= (blTile - pos).getNormalized() * diff;
+			}
+		}
+		
+		// Set the position
 		ent->setPos(pos);
 	}
 }
