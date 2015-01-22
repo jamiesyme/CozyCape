@@ -5,12 +5,14 @@
 #include "keyboard.hpp"
 #include "entity.hpp"
 #include "player.hpp"
+#include "camera.hpp"
 #include "map.hpp"
 #include "commongl.hpp"
 
 // "Game" specific data
 namespace {
 	bool gIsRunning = false;
+	Camera* gCamera = 0;
 	
 	class GameEventEar : public EventEar {
 	public:
@@ -36,19 +38,24 @@ void Game::run()
 	Keyboard::init();
 	
 	// Initialize opengl
-	CommonGL::setOrtho(Vec2(0.0f, 16.0f),
-										 Vec2(12.0f, 0.0f),
-										 Vec2(-1.0f, 1.0f));
 	CommonGL::setBgColor(Color::White);
 	
 	// Init the game map
 	Map::init(20, 20);
 	Map::setTile(5, 5, 1);
 	
-	// -- Create the player
-	Entity* player = new Player();
+	// Create the player
+	Player* player = new Player();
 	player->setPos(Vec2(3.0f, 2.0f));
 	Map::manageEntity(player);
+	
+	// Create the camera
+	Camera* camera = new Camera(16.0f, 12.0f);
+	camera->setSolid(false);
+	camera->setRadius(2.0f);
+	camera->follow(player);
+	Map::manageEntity(camera);
+	Game::setCamera(camera);
 	
 	// Run the game loop
 	gIsRunning = true;
@@ -66,6 +73,8 @@ void Game::run()
 		
 		// Game Drawing
 		CommonGL::clearColor();
+		if (gCamera != 0)
+			gCamera->bind();
 		Map::onDraw();
 		Window::swap();
 		
@@ -84,4 +93,9 @@ void Game::run()
 void Game::stop()
 {
 	gIsRunning = false;
+}
+
+void Game::setCamera(Camera* c)
+{
+	gCamera = c;
 }
