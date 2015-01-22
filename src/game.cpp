@@ -5,13 +5,12 @@
 #include "keyboard.hpp"
 #include "entity.hpp"
 #include "player.hpp"
+#include "map.hpp"
 #include "commongl.hpp"
-#include <vector>
 
 // "Game" specific data
 namespace {
 	bool gIsRunning = false;
-	std::vector<Entity*> gEnts;
 	
 	class GameEventEar : public EventEar {
 	public:
@@ -42,10 +41,14 @@ void Game::run()
 										 Vec2(-1.0f, 1.0f));
 	CommonGL::setBgColor(Color::White);
 	
-	// HACK: Create the player
+	// Init the game map
+	Map::init(20, 20);
+	Map::setTile(5, 5, 1);
+	
+	// -- Create the player
 	Entity* player = new Player();
 	player->setPos(Vec2(3.0f, 2.0f));
-	Game::manageEntity(player);
+	Map::manageEntity(player);
 	
 	// Run the game loop
 	gIsRunning = true;
@@ -56,13 +59,11 @@ void Game::run()
 		Events::poll();
 		
 		// Game Logic
-		for (unsigned int i = 0; i < gEnts.size(); i++)
-			gEnts[i]->onTick();
+		Map::onTick();
 		
 		// Game Drawing
 		CommonGL::clearColor();
-		for (unsigned int i = 0; i < gEnts.size(); i++)
-			gEnts[i]->onDraw();
+		Map::onDraw();
 		Window::swap();
 		
 		// Cap the framerate at 60
@@ -71,9 +72,7 @@ void Game::run()
 	}
 	
 	// Close the basics
-	for (unsigned int i = 0; i < gEnts.size(); i++)
-		delete gEnts[i];
-	gEnts.clear();
+	Map::kill();
 	Keyboard::kill();
 	Events::removeEar(&gEar);
 	Window::close();
@@ -82,37 +81,4 @@ void Game::run()
 void Game::stop()
 {
 	gIsRunning = false;
-}
-
-void Game::manageEntity(Entity* e)
-{
-	// Skip null entities
-	if (e == 0)
-		return;
-		
-	// Check for duplicates
-	for (unsigned int i = 0; i < gEnts.size(); i++)
-		if (gEnts[i] == e)
-			return;
-			
-	// Manage the entity
-	gEnts.push_back(e);
-}
-
-void Game::destroyEntity(Entity* e)
-{
-	// Skip null entities
-	if (e == 0)
-		return;
-		
-	// Locate and destroy the entity
-	for (unsigned int i = 0; i < gEnts.size(); i++)
-	{
-		if (gEnts[i] == e) 
-		{
-			delete gEnts[i];
-			gEnts.erase(gEnts.begin() + i);
-			break;
-		}
-	}
 }
