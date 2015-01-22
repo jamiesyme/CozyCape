@@ -2,7 +2,9 @@
 #include "window.hpp"
 #include "clock.hpp"
 #include "events.hpp"
+#include "keyboard.hpp"
 #include "entity.hpp"
+#include "player.hpp"
 #include "commongl.hpp"
 #include <vector>
 
@@ -13,8 +15,7 @@ namespace {
 	
 	class GameEventEar : public EventEar {
 	public:
-		void onWindowClose()
-		{
+		void onWindowClose() {
 			Game::stop();
 		}
 	};
@@ -33,6 +34,7 @@ void Game::run()
 	Window::open(800, 600);
 	Clock::setTime(0.0);
 	Events::addEar(&gEar);
+	Keyboard::init();
 	
 	// Initialize opengl
 	CommonGL::setOrtho(Vec2(0.0f, 16.0f),
@@ -40,8 +42,8 @@ void Game::run()
 										 Vec2(-1.0f, 1.0f));
 	CommonGL::setBgColor(Color::White);
 	
-	// Create the player
-	Entity* player = new Entity();
+	// HACK: Create the player
+	Entity* player = new Player();
 	player->setPos(Vec2(3.0f, 2.0f));
 	Game::manageEntity(player);
 	
@@ -72,6 +74,7 @@ void Game::run()
 	for (unsigned int i = 0; i < gEnts.size(); i++)
 		delete gEnts[i];
 	gEnts.clear();
+	Keyboard::kill();
 	Events::removeEar(&gEar);
 	Window::close();
 }

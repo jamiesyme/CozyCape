@@ -24,6 +24,11 @@ void Entity::onDraw()
 	CommonGL::drawCircle(mPos, mRadius * 0.8f, 24);
 }
 
+void Entity::move(const Vec2& i)
+{
+	mPos += i;
+}
+
 void Entity::setPos(const Vec2& p)
 {
 	mPos = p;

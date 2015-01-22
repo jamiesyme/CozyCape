@@ -7,7 +7,7 @@ namespace {
 	
 	std::string getKey(SDL_Keysym keySym)
 	{
-		// A - Z
+		// a - z
 		if (keySym.sym >= SDLK_a && keySym.sym <= SDLK_z)
 			return std::string(1, (char)('a' + (keySym.sym - SDLK_a)));
 			
