@@ -7,7 +7,7 @@ static SDL_GLContext context = 0;
 void Window::open(int w, int h)
 {
 	// Open our window
-	window = SDL_CreateWindow("BangBang", 
+	window = SDL_CreateWindow("Insert Game Name", 
 														SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
 														w, h, 
 														SDL_WINDOW_OPENGL |
