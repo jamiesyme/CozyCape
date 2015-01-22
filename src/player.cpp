@@ -4,6 +4,7 @@
 Player::Player()
 {
 	mTickTimer.set(0.0);
+	setRadius(0.4f);
 }
 
 Player::~Player()
