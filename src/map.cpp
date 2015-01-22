@@ -92,7 +92,7 @@ void Map::onPhysics()
 		const Vec2 bTile = Vec2(std::floor(pos.x),
 		                        std::floor(pos.y - radius));
 		if (Map::getTile((int)bTile.x, (int)bTile.y) != 0)
-			pos.y = bTile.x + radius + 1;
+			pos.y = bTile.y + radius + 1;
 		
 		// Check top right
 		const Vec2 trTile = Vec2(std::floor(pos.x + radius),
