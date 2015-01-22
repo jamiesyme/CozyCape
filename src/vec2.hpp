@@ -26,8 +26,11 @@ public:
 	Vec2 operator*(const float f) const;
 	Vec2 operator/(const float f) const;
 	
-	float getMag() const;
-	float getSqrMag() const;
-	Vec2  getNormalized() const;
+	float distance(const Vec2& v) const;
+	float distanceSquared(const Vec2& v) const;
+	float length() const;
+	float lengthSquared() const;
+	
+	Vec2  normalized() const;
 	void  normalize();
 };

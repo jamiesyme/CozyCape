@@ -38,11 +38,13 @@ float Camera::getHeight() const
 void Camera::bind()
 {
 	// Follow our entity
-	if (mFollow != 0) {
-		const float dist = (getPos() - mFollow->getPos()).getMag();
-		if (dist > getRadius()) {
+	if (mFollow != 0) 
+	{
+		const float dist = getPos().distance(mFollow->getPos());
+		if (dist > getRadius()) 
+		{
 			const float diff = dist - getRadius();
-			move((mFollow->getPos() - getPos()).getNormalized() * diff);
+			move((mFollow->getPos() - getPos()).normalized() * diff);
 		}
 	}
 

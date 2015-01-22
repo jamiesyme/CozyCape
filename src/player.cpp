@@ -26,7 +26,7 @@ void Player::onTick()
 	if (Keyboard::isKeyDown("a"))
 		moveVec.x -= 1;
 		
-	if (moveVec.getSqrMag() != 0.0f) {
+	if (moveVec.lengthSquared() != 0.0f) {
 		moveVec.normalize();
 		move(moveVec * 6.0f * dt);
 	}

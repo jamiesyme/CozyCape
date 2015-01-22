@@ -3,8 +3,8 @@
 
 Vec2::Vec2()
 {
-	this->x = 0.0f;
-	this->y = 0.0f;
+	x = 0.0f;
+	y = 0.0f;
 }
 
 Vec2::Vec2(float x, float y)
@@ -15,8 +15,8 @@ Vec2::Vec2(float x, float y)
 
 Vec2::Vec2(const Vec2& v)
 {
-	this->x = v.x;
-	this->y = v.y;
+	x = v.x;
+	y = v.y;
 }
 
 Vec2::~Vec2()
@@ -25,20 +25,20 @@ Vec2::~Vec2()
 
 void Vec2::operator=(const Vec2& v)
 {
-	this->x = v.x;
-	this->y = v.y;
+	x = v.x;
+	y = v.y;
 }
 
 bool Vec2::operator==(const Vec2& v) const
 {
-	return (this->x == v.x && 
-	        this->y == v.y);
+	return (x == v.x && 
+	        y == v.y);
 }
 
 bool Vec2::operator!=(const Vec2& v) const
 {
-	return (this->x != v.x ||
-	        this->y != v.y);
+	return (x != v.x ||
+	        y != v.y);
 }
 
 float& Vec2::operator[](const int i)
@@ -84,48 +84,64 @@ Vec2 Vec2::operator-() const
 
 Vec2 Vec2::operator+(const Vec2& v) const
 {
-	return Vec2(this->x + v.x, this->y + v.y);
+	return Vec2(x + v.x, 
+	            y + v.y);
 }
 
 Vec2 Vec2::operator-(const Vec2& v) const
 {
-	return Vec2(this->x - v.x, this->y - v.y);
+	return Vec2(x - v.x, 
+	            y - v.y);
 }
 
 Vec2 Vec2::operator*(const float f) const
 {
-	return Vec2(this->x * f, this->y * f);
+	return Vec2(x * f, 
+	            y * f);
 }
 
 Vec2 Vec2::operator/(const float f) const
 {
-	return Vec2(this->x / f, this->y / f);
+	return Vec2(x / f, 
+	            y / f);
 }
 
-float Vec2::getMag() const
+float Vec2::length() const
 {
 	return std::sqrt(x * x + y * y);
 }
 
-float Vec2::getSqrMag() const
+float Vec2::lengthSquared() const
 {
 	return x * x + y * y;
 }
 
-Vec2 Vec2::getNormalized() const
+float Vec2::distance(const Vec2& v) const
 {
-	const float mag = getMag();
-	if (mag == 0.0f)
+	return (v - *this).length();
+}
+
+float Vec2::distanceSquared(const Vec2& v) const
+{
+	return (v - *this).lengthSquared();
+}
+
+Vec2 Vec2::normalized() const
+{
+	const float len = length();
+	if (len == 0.0f) 
 		return Vec2();
-	return (*this) / mag;
+	else
+		return (*this) / len;
 }
 
 void Vec2::normalize()
 {
-	const float mag = getMag();
-	if (mag == 0.0f)
+	const float len = length();
+	if (len == 0.0f)
 		(*this) = Vec2();
-	(*this) /= mag;
+	else
+		(*this) /= len;
 }
 
 

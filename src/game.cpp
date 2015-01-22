@@ -38,11 +38,12 @@ void Game::run()
 	Keyboard::init();
 	
 	// Initialize opengl
-	CommonGL::setBgColor(Color::White);
+	CommonGL::setBgColor(Color::Black);
 	
 	// Init the game map
 	Map::init(20, 20);
 	Map::setTile(5, 5, 1);
+	Map::setTile(1, 1, 1);
 	
 	// Create the player
 	Player* player = new Player();
