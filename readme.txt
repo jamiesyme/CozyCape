@@ -27,6 +27,17 @@ Then, we move to Game::run()
 The game loop is just drawing, calls game logic, caps framerate, etc.
 
 
+The Map:
+	- Contains tiles (just ints)
+	- Holds all entities
+
+
+Entities:
+	- Everything in the game world (beside tiles) are entities
+	- You can use them for custom logic and drawing
+	- To add an entity to the world, just create it and pass it to Map
+
+
 Events: 
 	- Poll events once a frame (done in game loop)
 	- If you want to receive events:
