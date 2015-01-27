@@ -111,7 +111,7 @@ float Vec2::length() const
 	return std::sqrt(x * x + y * y);
 }
 
-float Vec2::lengthSquared() const
+float Vec2::length2() const
 {
 	return x * x + y * y;
 }
@@ -121,9 +121,9 @@ float Vec2::distance(const Vec2& v) const
 	return (v - *this).length();
 }
 
-float Vec2::distanceSquared(const Vec2& v) const
+float Vec2::distance2(const Vec2& v) const
 {
-	return (v - *this).lengthSquared();
+	return (v - *this).length2();
 }
 
 Vec2 Vec2::normalized() const

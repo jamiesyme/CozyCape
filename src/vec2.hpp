@@ -27,9 +27,9 @@ public:
 	Vec2 operator/(const float f) const;
 	
 	float distance(const Vec2& v) const;
-	float distanceSquared(const Vec2& v) const;
+	float distance2(const Vec2& v) const;
 	float length() const;
-	float lengthSquared() const;
+	float length2() const;
 	
 	Vec2  normalized() const;
 	void  normalize();
