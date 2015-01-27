@@ -35,8 +35,7 @@ namespace Map {
 	bool   tileRaycast(const Raycast& ray, RaycastHitTile* hitInfo);
 	bool entityRaycast(const Raycast& ray, RaycastHitEntity* hitInfo);
 	
-	void  manageEntity(Entity* e);
-	void destroyEntity(Entity* e);
+	void manageEntity(Entity* e);
 	
 	void setTile(int x, int y, int t);
 	int  getTile(int x, int y);

@@ -19,8 +19,12 @@ public:
 	
 	void setSolid(const bool s);
 	bool  isSolid() const;
+	
+	void invalidate();
+	bool isValid() const;
 
 private:
+	bool  mIsValid;
 	bool  mIsSolid;
 	Vec2  mPos;
 	float mRadius;

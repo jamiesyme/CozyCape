@@ -5,6 +5,7 @@ Entity::Entity()
 {
 	mRadius = 0.5f;
 	mIsSolid = true;
+	mIsValid = true;
 }
 
 Entity::~Entity()
@@ -58,4 +59,14 @@ void Entity::setSolid(const bool s)
 bool Entity::isSolid() const
 {
 	return mIsSolid;
+}
+
+void Entity::invalidate()
+{
+	mIsValid = false;
+}
+
+bool Entity::isValid() const
+{
+	return mIsValid;
 }

@@ -32,12 +32,22 @@ void Map::kill()
 
 void Map::onTick()
 {
+	// Update the entities
 	for (unsigned int i = 0; i < gEnts.size(); i++)
 		gEnts[i]->onTick();
+		
+	// Remove the invalid entities
+	for (unsigned int i = 0; i < gEnts.size(); i++) {
+		if (!gEnts[i]->isValid()) {
+			delete gEnts[i];
+			gEnts.erase(gEnts.begin() + i--);
+		}
+	}
 }
 
 void Map::onDraw()
 {
+	// Draw tiles
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_TRIANGLES);
 	for (int x = 0; x < gWidth; x++) {
@@ -54,6 +64,7 @@ void Map::onDraw()
 	}
 	glEnd();
 	
+	// Draw entities
 	for (unsigned int i = 0; i < gEnts.size(); i++)
 		gEnts[i]->onDraw();
 }
@@ -227,12 +238,12 @@ bool Map::tileRaycast(const Raycast& ray, RaycastHitTile* hitInfo)
 			dy = ((float)intY - pos.y + 1.0f) / ray.dir.y;
 		if (dx < dy) {
 			intX += intDx;
-			norm  = Vec2((float)intDx, 0.0f);
+			norm  = Vec2(-(float)intDx, 0.0f);
 			pos.x = std::round(pos.x + dx * ray.dir.x);
 			pos.y = ray.pos.y + ray.dir.y * (pos.x - ray.pos.x) / ray.dir.x;
 		} else {
 			intY += intDy;
-			norm  = Vec2(0.0f, (float)intDy);
+			norm  = Vec2(0.0f, -(float)intDy);
 			pos.y = std::round(pos.y + dy * ray.dir.y);
 			pos.x = ray.pos.x + ray.dir.x * (pos.y - ray.pos.y) / ray.dir.y;
 		}
@@ -259,24 +270,6 @@ void Map::manageEntity(Entity* e)
 			
 	// Manage the entity
 	gEnts.push_back(e);
-}
-
-void Map::destroyEntity(Entity* e)
-{
-	// Skip null entities
-	if (e == 0)
-		return;
-		
-	// Locate and destroy the entity
-	for (unsigned int i = 0; i < gEnts.size(); i++)
-	{
-		if (gEnts[i] == e) 
-		{
-			delete gEnts[i];
-			gEnts.erase(gEnts.begin() + i);
-			break;
-		}
-	}
 }
 
 void Map::setTile(int x, int y, int t)
