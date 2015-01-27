@@ -12,4 +12,5 @@ public:
 
 private:
 	Clock::Timer mTickTimer;
+	Clock::Timer mShotTimer;
 };

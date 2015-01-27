@@ -106,6 +106,18 @@ Vec2 Vec2::operator/(const float f) const
 	            y / f);
 }
 
+Vec2 operator*(const float f, const Vec2& v)
+{
+	return Vec2(v.x * f,
+	            v.y * f);
+}
+
+Vec2 operator/(const float f, const Vec2& v)
+{
+	return Vec2(v.x / f,
+	            v.y / f);
+}
+
 float Vec2::length() const
 {
 	return std::sqrt(x * x + y * y);
@@ -144,4 +156,7 @@ void Vec2::normalize()
 		(*this) /= len;
 }
 
-
+float Vec2::dot(const Vec2& v) const
+{
+	return x * v.x + y * v.y;
+}

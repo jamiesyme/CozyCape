@@ -3,6 +3,7 @@
 #include "clock.hpp"
 #include "events.hpp"
 #include "keyboard.hpp"
+#include "mouse.hpp"
 #include "entity.hpp"
 #include "player.hpp"
 #include "camera.hpp"
@@ -36,6 +37,7 @@ void Game::run()
 	Clock::setTime(0.0);
 	Events::addEar(&gEar);
 	Keyboard::init();
+	Mouse::init();
 	
 	// Initialize opengl
 	CommonGL::setBgColor(Color::Black);
@@ -51,7 +53,7 @@ void Game::run()
 	Map::manageEntity(player);
 	
 	// Create the camera
-	Camera* camera = new Camera(16.0f, 12.0f);
+	Camera* camera = new Camera(Vec2(16.0f, 12.0f));
 	camera->setSolid(false);
 	camera->setRadius(2.0f);
 	camera->follow(player);
@@ -86,6 +88,7 @@ void Game::run()
 	
 	// Close the basics
 	Map::kill();
+	Mouse::kill();
 	Keyboard::kill();
 	Events::removeEar(&gEar);
 	Window::close();
@@ -99,4 +102,9 @@ void Game::stop()
 void Game::setCamera(Camera* c)
 {
 	gCamera = c;
+}
+
+Camera* Game::getCamera()
+{
+	return gCamera;
 }

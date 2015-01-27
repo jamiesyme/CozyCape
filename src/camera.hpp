@@ -4,21 +4,20 @@
 
 class Camera : public Entity {
 public:
-	Camera(float w, float h);
+	Camera(const Vec2& size);
 	~Camera();
 	
 	void onDraw();
 	
-	void  setSize(float w, float h);
-	float getWidth() const;
-	float getHeight() const;
+	void setSize(const Vec2& s);
+	Vec2 getSize() const;
+	
+	Vec2 getWorldPos(int pixelX, int pixelY) const;
 	
 	void bind();
-	
 	void follow(Entity* e);	
 	
 private:
-	float mWidth;
-	float mHeight;
+	Vec2 mSize;
 	Entity* mFollow;
 };
