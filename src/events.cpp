@@ -21,6 +21,18 @@ namespace {
 			
 		return "";
 	}
+	
+	std::string getButton(int sdlButton)
+	{
+		if (sdlButton == SDL_BUTTON_LEFT)
+			return "left";
+		if (sdlButton == SDL_BUTTON_RIGHT)
+			return "right";
+		if (sdlButton == SDL_BUTTON_MIDDLE)
+			return "middle";
+			
+		return "";
+	}
 }
 
 
@@ -45,6 +57,22 @@ void Events::poll()
 			text = getKey(sdlEvent.key.keysym);
 			if (text.size() > 0)
 				gSpeaker.onKeyUp(text);
+			break;
+			
+		case SDL_MOUSEBUTTONDOWN:
+			text = getButton(sdlEvent.button.button);
+			if (text.size() > 0)
+				gSpeaker.onMouseDown(text);
+			break;
+			
+		case SDL_MOUSEBUTTONUP:
+			text = getButton(sdlEvent.button.button);
+			if (text.size() > 0)
+				gSpeaker.onMouseUp(text);
+			break;
+			
+		case SDL_MOUSEMOTION:
+			gSpeaker.onMouseMove(sdlEvent.motion.x, sdlEvent.motion.y);
 			break;
 			
 		case SDL_QUIT:
