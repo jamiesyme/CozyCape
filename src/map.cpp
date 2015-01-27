@@ -114,7 +114,7 @@ void Map::onPhysics()
 		tileVal = Map::getTile((int)tilePos.x, (int)tilePos.y);
 		if (tileVal != 0) 
 		{
-			const float dist2 = pos.distanceSquared(tilePos);
+			const float dist2 = pos.distance2(tilePos);
 			if (dist2 < radius2) 
 			{
 				const float diff = radius - pos.distance(tilePos);
@@ -128,7 +128,7 @@ void Map::onPhysics()
 		tileVal = Map::getTile((int)tilePos.x - 1, (int)tilePos.y);
 		if (tileVal != 0) 
 		{
-			const float dist2 = pos.distanceSquared(tilePos);
+			const float dist2 = pos.distance2(tilePos);
 			if (dist2 < radius2) 
 			{
 				const float diff = radius - pos.distance(tilePos);
@@ -142,7 +142,7 @@ void Map::onPhysics()
 		tileVal = Map::getTile((int)tilePos.x, (int)tilePos.y - 1);
 		if (tileVal != 0) 
 		{
-			const float dist2 = pos.distanceSquared(tilePos);
+			const float dist2 = pos.distance2(tilePos);
 			if (dist2 < radius2) 
 			{
 				const float diff = radius - pos.distance(tilePos);
@@ -156,7 +156,7 @@ void Map::onPhysics()
 		tileVal = Map::getTile((int)tilePos.x - 1, (int)tilePos.y - 1);
 		if (tileVal != 0) 
 		{
-			const float dist2 = pos.distanceSquared(tilePos);
+			const float dist2 = pos.distance2(tilePos);
 			if (dist2 < radius2) 
 			{
 				const float diff = radius - pos.distance(tilePos);
@@ -167,6 +167,83 @@ void Map::onPhysics()
 		// Set the position
 		ent->setPos(pos);
 	}
+}
+
+bool Map::tileRaycast(const Raycast& ray, RaycastHitTile* hitInfo)
+{
+	// Early out if we don't have a direction
+	if (ray.dir.length2() == 0.0f)
+		return false;
+
+	// Get the ray's max distance
+	const float maxDist2 = (ray.dist < 0.0f ? 0.0f : ray.dist * ray.dist);
+		
+	// Store some raycast variables
+	Vec2 norm = Vec2();
+	Vec2 pos  = ray.pos;
+	int intX  = (int)std::floor(pos.x);
+	int intY  = (int)std::floor(pos.y);
+	const int intDx = (ray.dir.x > 0) - (ray.dir.x < 0);
+	const int intDy = (ray.dir.y > 0) - (ray.dir.y < 0);
+	// ^^ SIGNUM(x) = (x > 0) - (x < 0);
+	
+	// Raycast
+	while (true) 
+	{
+		// Check the distance to our max
+		if (maxDist2 > 0.0f && (pos - ray.pos).length2() > maxDist2)
+			break;
+		
+		// Get the tilePos
+		if (getTile(intX, intY) > 0) {
+			if (hitInfo != 0) {
+				hitInfo->tx     = intX;
+				hitInfo->ty     = intY;
+				hitInfo->tile   = getTile(intX, intY);
+				hitInfo->point  = pos;
+				hitInfo->normal = norm;
+				hitInfo->dist   = (ray.pos - pos).length();
+			}
+			return true;
+		}
+		
+		// Check if we've left the map
+		if (intX < 0            && ray.dir.x <= 0.0f ||
+		    intY < 0            && ray.dir.y <= 0.0f ||
+		    intX >= getWidth()  && ray.dir.x >= 0.0f ||
+		    intY >= getHeight() && ray.dir.y >= 0.0f)
+		  break;
+		
+		// Move the position
+		float dx = 2.0f; // 2.0f because it's > 1.41 (max distance)
+		float dy = 2.0f;
+		if (intDx < 0)
+			dx = ((float)intX - pos.x) / ray.dir.x;
+		else if (intDx > 0)
+			dx = ((float)intX - pos.x + 1.0f) / ray.dir.x;
+		if (intDy < 0)
+			dy = ((float)intY - pos.y) / ray.dir.y;
+		else if (intDy > 0)
+			dy = ((float)intY - pos.y + 1.0f) / ray.dir.y;
+		if (dx < dy) {
+			intX += intDx;
+			norm  = Vec2((float)intDx, 0.0f);
+			pos.x = std::round(pos.x + dx * ray.dir.x);
+			pos.y = ray.pos.y + ray.dir.y * (pos.x - ray.pos.x) / ray.dir.x;
+		} else {
+			intY += intDy;
+			norm  = Vec2(0.0f, (float)intDy);
+			pos.y = std::round(pos.y + dy * ray.dir.y);
+			pos.x = ray.pos.x + ray.dir.x * (pos.y - ray.pos.y) / ray.dir.y;
+		}
+	}
+	
+	return false;
+}
+
+bool Map::entityRaycast(const Raycast& ray, RaycastHitEntity* hitInfo)
+{
+	return false;
 }
 
 void Map::manageEntity(Entity* e)
