@@ -9,6 +9,7 @@
 #include "camera.hpp"
 #include "map.hpp"
 #include "commongl.hpp"
+#include "image.hpp"
 
 // "Game" specific data
 namespace {
@@ -43,13 +44,25 @@ void Game::run()
 	CommonGL::setBgColor(Color::Black);
 	
 	// Init the game map
-	Map::init(20, 20);
-	Map::setTile(5, 5, 1);
-	Map::setTile(1, 1, 1);
+	Map::init(34, 34);
+	Image levelImg;
+	levelImg.load("../res/level1.png");
+	for (int x = 0; x < 34; x++) {
+		Map::setTile(x,  0, 1);
+		Map::setTile(x, 33, 1);
+	}
+	for (int y = 1; y < 33; y++) {
+		Map::setTile( 0, y, 1);
+		Map::setTile(33, y, 1);
+	}
+	for (int x = 0; x < 32; x++)
+		for (int y = 0; y < 32; y++)
+			if (levelImg.getPixel(x, y).r < 10)
+				Map::setTile(x + 1, y + 1, 1);
 	
 	// Create the player
 	Player* player = new Player();
-	player->setPos(Vec2(3.0f, 2.0f));
+	player->setPos(Vec2(19.0f, 19.0f));
 	Map::manageEntity(player);
 	
 	// Create the camera
