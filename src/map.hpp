@@ -2,6 +2,7 @@
 
 #include "vec2.hpp"
 class Entity;
+class SimplePath;
 
 namespace Map {
 	struct Raycast {
@@ -34,6 +35,8 @@ namespace Map {
 	void onPhysics();
 	bool   tileRaycast(const Raycast& ray, RaycastHitTile* hitInfo);
 	bool entityRaycast(const Raycast& ray, RaycastHitEntity* hitInfo);
+	
+	bool pathfind(const Vec2& start, const Vec2& end, SimplePath* pathInfo);
 	
 	void manageEntity(Entity* e);
 	

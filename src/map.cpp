@@ -1,14 +1,130 @@
 #include "map.hpp"
 #include "entity.hpp"
+#include "simplepath.hpp"
 #include <GL/gl.h>
 #include <vector>
+#include <list>
 #include <cmath>
+
+#define ABS(x) ((x) < 0 ? (-(x)) : (x))
 
 namespace {
 	std::vector<Entity*> gEnts;
 	int* gTiles;
 	int  gWidth;
 	int  gHeight;
+	
+	struct Node {
+		int   x;
+		int   y;
+		float g;
+		float h;
+		float f() { return g + h; }
+		Node* p;
+		bool  isOpen;
+	};
+	
+	class OpenList {
+		std::list<Node*> nodes;
+	public:
+		void add(Node* n) 
+		{
+			n->isOpen = true;
+			for (auto it = nodes.begin(); it != nodes.end(); it++) {
+				if (n->f() < (*it)->f()) {
+					nodes.insert(it, n);
+					return;
+				}
+			}
+			nodes.push_back(n);
+		}
+		Node* popFront()
+		{
+			Node* n = nodes.front();
+			nodes.erase(nodes.begin());
+			n->isOpen = false;
+			return n;
+		}
+		bool isEmpty()
+		{
+			return (nodes.size() == 0);
+		}
+		void update(Node* n)
+		{
+			for (auto it = nodes.begin(); it != nodes.end(); it++) {
+				if (*it == n) {
+					nodes.erase(it);
+					break;
+				}
+			}
+			add(n);
+		}
+	};
+	
+	class NodeGrid {
+		Node** nodes;
+		int w;
+		int h;
+		int ex;
+		int ey;
+		OpenList* ol;
+	public:
+		NodeGrid(int w, int h, int ex, int ey, OpenList* ol) 
+		{
+			nodes = new Node*[w * h];
+			for (int i = 0; i < w * h; i++)
+				nodes[i] = 0;
+			this->w = w;
+			this->h = h;
+			this->ex = ex;
+			this->ey = ey;
+			this->ol = ol;
+		}
+		~NodeGrid() 
+		{
+			for (int i = 0; i < w * h; i++)
+				delete nodes[i];
+			delete[] nodes;
+		}
+		bool isClosed(int x, int y)
+		{
+			if (nodes[x * h + y] == 0)
+				return false;
+			return !nodes[x * h + y]->isOpen;
+		}
+		Node* addOpenNode(int x, int y, Node* parent)
+		{
+			if (nodes[x * h + y] != 0)
+				return nodes[x * h + y];
+			Node* n = new Node();
+			n->x = x;
+			n->y = y;
+			if (parent != 0)
+				n->g = parent->g + 1;
+			else
+				n->g = 0;
+			n->h = (float)(ABS(ex - x) + ABS(ey - y));
+			n->p = parent;
+			nodes[x * h + y] = n;
+			ol->add(n);
+		}
+		Node* getNode(int x, int y)
+		{
+			return nodes[x * h + y];
+		}
+		bool tryBetterParent(int x, int y, Node* parent)
+		{
+			Node* n = nodes[x * h + y];
+			if (n == 0)     return false; // The node has to exist
+			if (!n->isOpen) return false; // The node has to be open
+			const float g = parent->g + 1;
+			if (n->g <= g)  return false; // The parent needs to be better
+			n->g = g;
+			n->p = parent;
+			ol->update(n);
+			return true;
+		}
+	};
 }
 
 void Map::init(int w, int h)
@@ -255,6 +371,100 @@ bool Map::tileRaycast(const Raycast& ray, RaycastHitTile* hitInfo)
 bool Map::entityRaycast(const Raycast& ray, RaycastHitEntity* hitInfo)
 {
 	return false;
+}
+
+bool Map::pathfind(const Vec2& start, const Vec2& end, SimplePath* pathInfo)
+{
+	const int sx = (int)std::floor(start.x);
+	const int sy = (int)std::floor(start.y);
+	const int ex = (int)std::floor(end.x);
+	const int ey = (int)std::floor(end.y);
+	if (sx < 0 || sx >= getWidth() ||
+	    sy < 0 || sy >= getHeight() ||
+	    ex < 0 || ex >= getWidth() ||
+	    ey < 0 || ey >= getHeight() ||
+	    pathInfo == 0)
+	  return false;
+	
+	if (getTile(sx, sy) != 0 ||
+			getTile(ex, ey) != 0)
+		return false;
+		
+	OpenList openList;
+	NodeGrid nodeGrid(getWidth(), getHeight(), ex, ey, &openList);
+	nodeGrid.addOpenNode(sx, sy, 0);
+	while (!openList.isEmpty()) 
+	{
+		// Get the best node from the open list
+		Node* cur = openList.popFront();
+		const int x = cur->x;
+		const int y = cur->y;
+		
+		// Did we just finish?
+		if (cur->x == ex && cur->y == ey)
+			break;
+		
+		// Get adjacent movement possibilities
+		bool canMoveL = true;
+		bool canMoveR = true;
+		bool canMoveT = true;
+		bool canMoveB = true;
+		if (getTile(x - 1, y) != 0 || nodeGrid.isClosed(x - 1, y))
+			canMoveL = false;
+		if (getTile(x + 1, y) != 0 || nodeGrid.isClosed(x + 1, y))
+			canMoveR = false;
+		if (getTile(x, y - 1) != 0 || nodeGrid.isClosed(x, y - 1))
+			canMoveB = false;
+		if (getTile(x, y + 1) != 0 || nodeGrid.isClosed(x, y + 1))
+			canMoveT = false;
+		
+		// Add nodes to open list
+		if (canMoveL || canMoveR || canMoveT || canMoveB) {
+		
+			// Check if it's already on there
+			//   If it is, just correct it with the better parent
+			if (canMoveL && nodeGrid.tryBetterParent(x - 1, y, cur))
+				canMoveL = false;
+			if (canMoveR && nodeGrid.tryBetterParent(x + 1, y, cur))
+				canMoveR = false;
+			if (canMoveB && nodeGrid.tryBetterParent(x, y - 1, cur))
+				canMoveB = false;
+			if (canMoveT && nodeGrid.tryBetterParent(x, y + 1, cur))
+				canMoveT = false;
+			
+			// Add new nodes
+			if (canMoveL)
+				nodeGrid.addOpenNode(x - 1, y, cur);
+			if (canMoveR)
+				nodeGrid.addOpenNode(x + 1, y, cur);
+			if (canMoveB)
+				nodeGrid.addOpenNode(x, y - 1, cur);
+			if (canMoveT)
+				nodeGrid.addOpenNode(x, y + 1, cur);
+		}
+	}
+	
+	// Get the final node
+	Node* finalNode = nodeGrid.getNode(ex, ey);
+	if (finalNode == 0)
+		return false;
+	
+	// Go through and construct the route
+	SimplePath* path = pathInfo;
+	Node* n = finalNode;
+	while (n != 0) {
+		const Vec2 pos = Vec2((float)n->x + 0.5f, (float)n->y + 0.5f);
+		if (n->p == 0)
+			path->setPos(pos);
+		else {
+			SimplePath* newPath = new SimplePath(pos);
+			newPath->setNext(path->getNext());
+			path->setNext(newPath);
+		}
+		n = n->p;
+	}
+	
+	return true;
 }
 
 void Map::manageEntity(Entity* e)

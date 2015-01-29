@@ -16,6 +16,7 @@
 namespace {
 	bool gIsRunning = false;
 	Camera* gCamera = 0;
+	Player* gPlayer = 0;
 	
 	class GameEventEar : public EventEar {
 	public:
@@ -75,6 +76,7 @@ void Game::run()
 	Player* player = new Player();
 	player->setPos(Vec2(19.0f, 19.0f));
 	Map::manageEntity(player);
+	Game::setPlayer(player);
 	
 	// Create the camera
 	Camera* camera = new Camera(Vec2(16.0f, 12.0f));
@@ -131,4 +133,14 @@ void Game::setCamera(Camera* c)
 Camera* Game::getCamera()
 {
 	return gCamera;
+}
+
+void Game::setPlayer(Player* p)
+{
+	gPlayer = p;
+}
+
+Player* Game::getPlayer()
+{
+	return gPlayer;
 }
