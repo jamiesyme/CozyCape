@@ -5,12 +5,14 @@
 #include "bullet.hpp"
 #include "game.hpp"
 #include "map.hpp"
+#include "events.hpp"
 
 Player::Player()
 {
 	mTickTimer.set(0.0);
 	mShotTimer.set(0.0);
 	setRadius(0.4f);
+	Events::addEar(this);
 }
 
 Player::~Player()
@@ -38,10 +40,22 @@ void Player::onTick()
 	}
 	
 	// Shoot bullet
-	if (Mouse::isButtonDown("left") && mShotTimer.get() > 0.1f) 
+	if (Mouse::isButtonDown("left"))
+		shoot();
+}
+
+void Player::onMouseDown(const std::string& button)
+{
+	if (button == "left")
+		shoot();
+}
+
+void Player::shoot()
+{
+	if (mShotTimer.get() > 0.1) 
 	{
 		mShotTimer.set(0.0);
-	
+		
 		Camera* cam = Game::getCamera();
 		Vec2 mousePos  = cam->getWorldPos(Mouse::getX(), Mouse::getY());
 		Vec2 direction = (mousePos - getPos()).normalized();
