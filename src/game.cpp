@@ -10,6 +10,7 @@
 #include "map.hpp"
 #include "commongl.hpp"
 #include "image.hpp"
+#include "spawner.hpp"
 
 // "Game" specific data
 namespace {
@@ -44,21 +45,31 @@ void Game::run()
 	CommonGL::setBgColor(Color::Black);
 	
 	// Init the game map
-	Map::init(34, 34);
 	Image levelImg;
 	levelImg.load("../res/level1.png");
-	for (int x = 0; x < 34; x++) {
-		Map::setTile(x,  0, 1);
-		Map::setTile(x, 33, 1);
+	const int mapSizeX = levelImg.getSizeX() + 2;
+	const int mapSizeY = levelImg.getSizeY() + 2;
+	Map::init(mapSizeX, mapSizeY);
+	for (int x = 0; x < mapSizeX; x++) {
+		Map::setTile(x, 0, 1);
+		Map::setTile(x, mapSizeY - 1, 1);
 	}
-	for (int y = 1; y < 33; y++) {
-		Map::setTile( 0, y, 1);
-		Map::setTile(33, y, 1);
+	for (int y = 0; y < mapSizeY; y++) {
+		Map::setTile(0, y, 1);
+		Map::setTile(mapSizeX - 1, y, 1);
 	}
-	for (int x = 0; x < 32; x++)
-		for (int y = 0; y < 32; y++)
+	for (int x = 0; x < mapSizeX - 2; x++)
+		for (int y = 0; y < mapSizeY - 2; y++)
 			if (levelImg.getPixel(x, y).r < 10)
 				Map::setTile(x + 1, y + 1, 1);
+	
+	// Create the spawner
+	Spawner* spawner = new Spawner();
+	spawner->addPoint(Vec2(13.5f, 13.5f));
+	spawner->addPoint(Vec2(27.5f, 11.5f));
+	spawner->addPoint(Vec2( 4.5f, 12.5f));
+	spawner->addPoint(Vec2(24.5f, 30.5f));
+	Map::manageEntity(spawner);
 	
 	// Create the player
 	Player* player = new Player();
