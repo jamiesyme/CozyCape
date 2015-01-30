@@ -61,6 +61,7 @@ void Player::shoot()
 		Vec2 direction = (mousePos - getPos()).normalized();
 		
 		Bullet* bullet = new Bullet();
+		bullet->setBounceMax(0);
 		bullet->setDirection(direction);
 		bullet->setPos(getPos() + direction * getRadius());
 		bullet->fire();

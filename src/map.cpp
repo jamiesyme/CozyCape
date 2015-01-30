@@ -370,6 +370,62 @@ bool Map::tileRaycast(const Raycast& ray, RaycastHitTile* hitInfo)
 
 bool Map::entityRaycast(const Raycast& ray, RaycastHitEntity* hitInfo)
 {
+	const float rayDirRadians = std::atan2(ray.dir.y, ray.dir.x);
+	const float rayDirCos     = std::cos( rayDirRadians);
+	const float rayDirSin     = std::sin( rayDirRadians);
+	const float rayDirCosNeg  = std::cos(-rayDirRadians);
+	const float rayDirSinNeg  = std::sin(-rayDirRadians);
+	
+	RaycastHitEntity best;
+	best.ent  = 0;
+	best.dist = -1.0f;
+	
+	for (unsigned int i = 0; i < gEnts.size(); i++) 
+	{
+		// Get a solid entity
+		Entity* ent = gEnts[i];
+		if (!ent->isSolid())
+			continue;
+		const Vec2  pos    = ent->getPos();
+		const float radius = ent->getRadius();
+		
+		// Get the transformed pos
+		Vec2 tPos = pos - ray.pos;
+		tPos = Vec2(tPos.x * rayDirCosNeg - tPos.y * rayDirSinNeg,
+		            tPos.x * rayDirSinNeg + tPos.y * rayDirCosNeg);
+		
+		// Check that it's in front of the ray
+		if (tPos.x - radius < 0.0f)
+			continue;
+			
+		// Check that it's overlapping the line
+		if (tPos.y - radius > 0.0f ||
+		    tPos.y + radius < 0.0f)
+		  continue;
+		  
+		// Calculate the distance to it
+		const float dist = tPos.x - std::sqrt(radius * radius - tPos.y * tPos.y);
+		
+		// Check if we already found a better one
+		if (best.dist >= 0.0f && best.dist <= dist)
+			continue;
+			
+		// This is our best so far
+		best.ent    = ent;
+		best.dist   = dist;
+		best.point  = Vec2(dist * rayDirCos, dist * rayDirSin);
+		best.normal = (Vec2(dist, 0.0f) - tPos).normalized();
+		best.normal = Vec2(best.normal.x * rayDirCos - best.normal.y * rayDirSin,
+		                   best.normal.x * rayDirSin + best.normal.y * rayDirCos);
+	}
+	
+	// Did we hit something
+	if (best.ent != 0) {
+		if (hitInfo != 0)
+			*hitInfo = best;
+		return true;
+	}
+	
 	return false;
 }
 
