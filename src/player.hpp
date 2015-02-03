@@ -10,11 +10,17 @@ public:
 	~Player();
 	
 	void onTick();
+	void onMouseMove(const int x, const int y);
 	void onMouseDown(const std::string& button);
+	void onMouseUp(const std::string& button);
 	
-	void shoot();
+	void  pullShot();
+	void  releaseShot();
+	bool  isShotHeld() const;
+	float getShotPower() const;
 
 private:
 	Clock::Timer mTickTimer;
 	Clock::Timer mShotTimer;
+	bool mIsShotHeld;
 };

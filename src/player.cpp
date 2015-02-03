@@ -6,11 +6,13 @@
 #include "game.hpp"
 #include "map.hpp"
 #include "events.hpp"
+#include <cmath>
 
 Player::Player()
 {
 	mTickTimer.set(0.0);
 	mShotTimer.set(0.0);
+	mIsShotHeld = false;
 	setRadius(0.4f);
 	Events::addEar(this);
 }
@@ -38,33 +40,73 @@ void Player::onTick()
 		moveVec.normalize();
 		move(moveVec * 6.0f * dt);
 	}
+}
+
+void Player::onMouseMove(const int x, const int y)
+{
+	// Get relative coordinates
+	const Vec2 wCoords = Game::getCamera()->getWorldPos(x, y);
 	
-	// Shoot bullet
-	if (Mouse::isButtonDown("left"))
-		shoot();
+	// Aim ourselves
+	Vec2 dir = (wCoords - getPos()).normalized();
+	if (dir.length2() == 0.0f) dir.x = 1.0f;
+	setRot(std::atan2(dir.y, dir.x));
 }
 
 void Player::onMouseDown(const std::string& button)
 {
 	if (button == "left")
-		shoot();
+		pullShot();
 }
 
-void Player::shoot()
+void Player::onMouseUp(const std::string& button)
 {
-	if (mShotTimer.get() > 0.1) 
-	{
-		mShotTimer.set(0.0);
+	if (button == "left")
+		releaseShot();
+}
+
+void Player::pullShot()
+{
+	if (mIsShotHeld)
+		return;
+	mIsShotHeld = true;
+	mShotTimer.set(0.0);
+}
+
+void Player::releaseShot()
+{
+	if (!mIsShotHeld)
+		return;
 		
-		Camera* cam = Game::getCamera();
-		Vec2 mousePos  = cam->getWorldPos(Mouse::getX(), Mouse::getY());
-		Vec2 direction = (mousePos - getPos()).normalized();
-		
-		Bullet* bullet = new Bullet();
-		bullet->setBounceMax(0);
-		bullet->setDirection(direction);
-		bullet->setPos(getPos() + direction * getRadius());
-		bullet->fire();
-		Map::manageEntity(bullet);
-	}
+	// Get the power
+	const float shotPower = getShotPower();
+	mIsShotHeld = false;
+	
+	// Calculate the direction
+	Vec2 dir = Vec2(std::cos(getRot()), std::sin(getRot()));
+	
+	// Shoot
+	Bullet* bullet = new Bullet();
+	bullet->setBounceMax(0);
+	bullet->setDirection(dir);
+	bullet->setPos(getPos() + dir * getRadius());
+	bullet->setDuration(shotPower);
+	bullet->fire();
+	Map::manageEntity(bullet);
+}
+
+bool Player::isShotHeld() const
+{
+	return mIsShotHeld;
+}
+
+float Player::getShotPower() const
+{
+	if (!mIsShotHeld)
+		return 0.0f;
+	if (mShotTimer.get() <= 0.2)
+		return 0.2f;
+	if (mShotTimer.get() >= 1.0)
+		return 1.0f;
+	return mShotTimer.get();
 }

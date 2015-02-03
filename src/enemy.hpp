@@ -11,6 +11,7 @@ public:
 	
 	void onTick();
 	void onDraw();
+	void onMessage(const std::string& s, void* d = 0);
 	
 	float getRange() const;
 

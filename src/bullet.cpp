@@ -64,25 +64,50 @@ void Bullet::setDuration(const float d)
 void Bullet::fire()
 {
 	mTrail.clear();
-	Vec2 pos = getPos();
-	Vec2 dir = mDirection;
+	Vec2 dir  = mDirection;
+	Vec2 pos1 = getPos();
+	Vec2 pos2 = Vec2();
+	Vec2 norm = Vec2();
 	
 	for (int i = 0; i < mBounceMax + 1; i++) 
 	{
+		// Raycasting
 		Map::Raycast ray;
-		ray.pos = pos;
+		ray.pos = pos1;
 		ray.dir = dir;
-		Map::RaycastHitTile hitInfo;
-		if (Map::tileRaycast(ray, &hitInfo)) {
-			mTrail.push_back(ray.pos);
-			mTrail.push_back(hitInfo.point);
-			pos = hitInfo.point + hitInfo.normal * 0.001f;
-			dir = dir - 2 * dir.dot(hitInfo.normal) * hitInfo.normal;
-			continue;
+		Map::RaycastHitTile   hitInfo1;
+		Map::RaycastHitEntity hitInfo2;
+		hitInfo1.dist = -1.0f;
+		hitInfo2.dist = -1.0f;
+		Map::tileRaycast(ray, &hitInfo1);
+		Map::entityRaycast(ray, &hitInfo2);
+		if (hitInfo2.dist <= hitInfo1.dist &&
+		    hitInfo2.dist >= 0.0f) {
+		  pos2 = hitInfo2.point;
+		  norm = hitInfo2.normal;
+		} else
+		if (hitInfo1.dist >= 0.0f) {
+			pos2 = hitInfo1.point;
+			norm = hitInfo1.normal;
 		} else {
-			mTrail.push_back(ray.pos);
-			mTrail.push_back(ray.pos + ray.dir * 1000.0f);
-			break;
+			pos2 = pos1 + dir * 1000.0f;
+			norm = Vec2();
 		}
+		
+		// Hit the entity
+		if (hitInfo2.dist <= hitInfo1.dist &&
+				hitInfo2.dist >= 0.0f) {
+			float damage = 100.0f;
+			hitInfo2.ent->onMessage("hit", &damage);	
+		}
+		
+		// Make the trail
+		mTrail.push_back(pos1);
+		mTrail.push_back(pos2);
+		pos1 = pos2 + norm * 0.01f;
+		if (norm.length2() != 0.0f)
+			dir = dir - 2 * dir.dot(norm) * norm;
+		else
+			break;
 	}
 }

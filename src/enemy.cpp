@@ -4,6 +4,7 @@
 #include "game.hpp"
 #include "player.hpp"
 #include "commongl.hpp"
+#include <iostream>
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
@@ -84,6 +85,14 @@ void Enemy::onDraw()
 	CommonGL::drawCircle(getPos(), getRadius(), 24);
 	CommonGL::setColor(Color::White);
 	CommonGL::drawCircle(getPos(), getRadius() * 0.8f, 24);
+}
+
+void Enemy::onMessage(const std::string& s, void* d)
+{
+	if (s == "hit") {
+		float damage = *((float*)d);
+		std::cout << "Ouch! : " << damage << std::endl;
+	}
 }
 
 float Enemy::getRange() const

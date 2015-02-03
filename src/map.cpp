@@ -413,7 +413,7 @@ bool Map::entityRaycast(const Raycast& ray, RaycastHitEntity* hitInfo)
 		// This is our best so far
 		best.ent    = ent;
 		best.dist   = dist;
-		best.point  = Vec2(dist * rayDirCos, dist * rayDirSin);
+		best.point  = Vec2(dist * rayDirCos, dist * rayDirSin) + ray.pos;
 		best.normal = (Vec2(dist, 0.0f) - tPos).normalized();
 		best.normal = Vec2(best.normal.x * rayDirCos - best.normal.y * rayDirSin,
 		                   best.normal.x * rayDirSin + best.normal.y * rayDirCos);
