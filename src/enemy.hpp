@@ -2,7 +2,8 @@
 
 #include "entity.hpp"
 #include "clock.hpp"
-class SimplePath;
+#include "pathinfo.hpp"
+class PathFinder;
 
 class Enemy : public Entity {
 public:
@@ -11,15 +12,19 @@ public:
 	
 	void onTick();
 	void onDraw();
-	void onMessage(const std::string& s, void* d = 0);
+	//void onMessage(const std::string& s, void* d = 0);
 	
+	void moveTowards(const Vec2& p, const float dt);
 	float getRange() const;
+	float getSpeed() const;
 
 private:
+	Entity* mPlayer;
 	Clock::Timer mScanTimer;
 	Clock::Timer mPathTimer;
 	Clock::Timer mTickTimer;
-	SimplePath* mPathHead;
-	SimplePath* mPathNode;
+	PathFinder* mPathFinder;
+	PathInfo mPath;
+	int  mPathIndex;
 	bool mIsChasing;
 };

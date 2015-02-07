@@ -27,15 +27,20 @@ Then, we move to Game::run()
 The game loop is just drawing, calls game logic, caps framerate, etc.
 
 
-The Map:
-	- Contains tiles (just ints)
-	- Holds all entities
+How the map works:
+	- The Game class stores all the entities
+	- The Tiles class is an entity holding (what else) the tile details
+	  - getTile() ==  0 : An empty tile
+	  - getTile() ==  1 : A solid tile
+	  - getTile() == -1 : Out of bounds
 
 
 Entities:
-	- Everything in the game world (beside tiles) are entities
+	- Everything in the game world are entities
 	- You can use them for custom logic and drawing
-	- To add an entity to the world, just create it and pass it to Map
+	- To add an entity to the world, just create it and pass it to Game
+	- There are plans to make a message system...
+	  - It consists of onMessage() right now.
 
 
 Events: 
@@ -46,3 +51,7 @@ Events:
 	- If you want one object to receive events before another:
 		- You can create an event hierarchy using EventSpeakers, or
 		- You may extend EventSpeaker and implement custom logic
+		
+		
+This is a brief introduction.
+If you have questions, please ask!

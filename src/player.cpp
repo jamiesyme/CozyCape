@@ -1,29 +1,31 @@
 #include "player.hpp"
 #include "keyboard.hpp"
-#include "mouse.hpp"
 #include "camera.hpp"
-#include "bullet.hpp"
+#include "arrow.hpp"
 #include "game.hpp"
-#include "map.hpp"
 #include "events.hpp"
+#include "commongl.hpp"
 #include <cmath>
 
 Player::Player()
 {
 	mTickTimer.set(0.0);
 	mShotTimer.set(0.0);
-	mIsShotHeld = false;
-	setRadius(0.4f);
+	mIsArrowHeld = false;
+	setBodyCircle(0.4f);
+	setType("player");
 	Events::addEar(this);
 }
 
 Player::~Player()
 {
+	Events::removeEar(this);
 }
 
 void Player::onTick()
 {
-	float dt = (float)mTickTimer.get();
+	const float speed = 6.0f;
+	const float dt = (float)mTickTimer.get();
 	mTickTimer.set(0.0);
 	
 	Vec2 moveVec;
@@ -38,8 +40,16 @@ void Player::onTick()
 		
 	if (moveVec.length2() != 0.0f) {
 		moveVec.normalize();
-		move(moveVec * 6.0f * dt);
+		translate(moveVec * speed * dt);
 	}
+}
+
+void Player::onDraw()
+{
+	CommonGL::setColor(Color::Black);
+	CommonGL::drawCircle(getPosition(), getBodyRadius(), 24);
+	CommonGL::setColor(Color::White);
+	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
 }
 
 void Player::onMouseMove(const int x, const int y)
@@ -48,61 +58,60 @@ void Player::onMouseMove(const int x, const int y)
 	const Vec2 wCoords = Game::getCamera()->getWorldPos(x, y);
 	
 	// Aim ourselves
-	Vec2 dir = (wCoords - getPos()).normalized();
+	Vec2 dir = (wCoords - getPosition()).normalized();
 	if (dir.length2() == 0.0f) dir.x = 1.0f;
-	setRot(std::atan2(dir.y, dir.x));
+	setRotation(std::atan2(dir.y, dir.x));
 }
 
 void Player::onMouseDown(const std::string& button)
 {
 	if (button == "left")
-		pullShot();
+		pullArrow();
 }
 
 void Player::onMouseUp(const std::string& button)
 {
 	if (button == "left")
-		releaseShot();
+		releaseArrow();
 }
 
-void Player::pullShot()
+void Player::pullArrow()
 {
-	if (mIsShotHeld)
+	if (mIsArrowHeld)
 		return;
-	mIsShotHeld = true;
+	mIsArrowHeld = true;
 	mShotTimer.set(0.0);
 }
 
-void Player::releaseShot()
+void Player::releaseArrow()
 {
-	if (!mIsShotHeld)
+	if (!mIsArrowHeld)
 		return;
 		
 	// Get the power
-	const float shotPower = getShotPower();
-	mIsShotHeld = false;
+	const float arrowPower = getArrowPower();
+	mIsArrowHeld = false;
 	
 	// Calculate the direction
-	Vec2 dir = Vec2(std::cos(getRot()), std::sin(getRot()));
+	Vec2 dir = Vec2(std::cos(getRotation()), std::sin(getRotation()));
 	
 	// Shoot
-	Bullet* bullet = new Bullet();
-	bullet->setBounceMax(0);
-	bullet->setDirection(dir);
-	bullet->setPos(getPos() + dir * getRadius());
-	bullet->setDuration(shotPower);
-	bullet->fire();
-	Map::manageEntity(bullet);
+	Arrow* arrow = new Arrow();
+	arrow->setDirection(dir);
+	arrow->setPosition(getPosition());
+	arrow->setDuration(arrowPower);
+	arrow->shoot();
+	Game::manageEntity(arrow);
 }
 
-bool Player::isShotHeld() const
+bool Player::isArrowHeld() const
 {
-	return mIsShotHeld;
+	return mIsArrowHeld;
 }
 
-float Player::getShotPower() const
+float Player::getArrowPower() const
 {
-	if (!mIsShotHeld)
+	if (!mIsArrowHeld)
 		return 0.0f;
 	if (mShotTimer.get() <= 0.2)
 		return 0.2f;

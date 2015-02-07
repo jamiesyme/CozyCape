@@ -1,12 +1,14 @@
 #include "entity.hpp"
-#include "commongl.hpp"
 
 Entity::Entity()
 {
-	mRot = 0.0f;
-	mRadius = 0.5f;
-	mIsSolid = true;
-	mIsValid = true;
+	mName     = std::string();
+	mType     = std::string();
+	mPos      = Vec2();
+	mRot      = 0.0f;
+	mBodyType = 0;     // Empty
+	mRadius   = 0.0f;
+	mRect     = Vec2();
 }
 
 Entity::~Entity()
@@ -20,11 +22,7 @@ void Entity::onTick()
 
 void Entity::onDraw()
 {
-	// Draw the entity.
-	CommonGL::setColor(Color::Black);
-	CommonGL::drawCircle(mPos, mRadius, 24);
-	CommonGL::setColor(Color::White);
-	CommonGL::drawCircle(mPos, mRadius * 0.8f, 24);
+	// Draw nothing.
 }
 
 void Entity::onMessage(const std::string& s, void* d)
@@ -32,62 +30,119 @@ void Entity::onMessage(const std::string& s, void* d)
 	// Do nothing.
 }
 
-void Entity::move(const Vec2& i)
+void Entity::setName(const std::string& name)
 {
-	mPos += i;
+	mName = name;
 }
 
-void Entity::setPos(const Vec2& p)
+void Entity::setType(const std::string& type)
+{
+	mType = type;
+}
+
+std::string Entity::getName() const
+{
+	return mName;
+}
+
+std::string Entity::getType() const
+{
+	return mType;
+}
+
+void Entity::translate(const Vec2& v)
+{
+	mPos += v;
+}
+
+void Entity::rotate(const float rad)
+{
+	mRot += rad;
+}
+
+void Entity::setPosition(const Vec2& p)
 {
 	mPos = p;
 }
 
-Vec2 Entity::getPos() const
-{
-	return mPos;
-}
-
-void Entity::setRot(const float rad)
+void Entity::setRotation(const float rad)
 {
 	mRot = rad;
 }
 
-float Entity::getRot() const
+Vec2 Entity::getPosition() const
+{
+	return mPos;
+}
+
+float Entity::getRotation() const
 {
 	return mRot;
 }
 
-float Entity::getRotAsDeg() const
+float Entity::getRotationAsDeg() const
 {
 	return mRot * 180.0f / 3.141592654f;
 }
 
-void Entity::setRadius(const float r)
+void Entity::setBodyEmpty()
 {
-	mRadius = r;
+	mBodyType = 0;
 }
 
-float Entity::getRadius() const
+void Entity::setBodyCircle(const float radius)
 {
-	return mRadius;
+	mBodyType = 1;
+	mRadius = radius;
 }
 
-void Entity::setSolid(const bool s)
+void Entity::setBodyRect(const Vec2& size)
 {
-	mIsSolid = s;
+	mBodyType = 2;
+	mRect = size;
 }
 
-bool Entity::isSolid() const
+void Entity::setBodyComplex()
 {
-	return mIsSolid;
+	mBodyType = 3;
 }
 
-void Entity::invalidate()
+bool Entity::isBodyEmpty() const
 {
-	mIsValid = false;
+	return (mBodyType < 1 || mBodyType > 3);
 }
 
-bool Entity::isValid() const
+bool Entity::isBodyCircle() const
 {
-	return mIsValid;
+	return (mBodyType == 1);
+}
+
+bool Entity::isBodyRect() const
+{
+	return (mBodyType == 2);
+}
+
+bool Entity::isBodyComplex() const
+{
+	return (mBodyType == 3);
+}
+
+float Entity::getBodyRadius() const
+{
+	return (isBodyCircle() ? mRadius : 0.0f);
+}
+
+Vec2 Entity::getBodyRect() const
+{
+	return (isBodyRect() ? mRect : Vec2());
+}
+
+bool Entity::fixComplexBodyCollision(Entity* e)
+{
+	return false;
+}
+
+bool Entity::doComplexBodyRaycast(const Ray& ray, RaycastInfo* info)
+{
+	return false;
 }

@@ -10,7 +10,6 @@ public:
 	~Spawner();
 	
 	void onTick();
-	void onDraw();
 	
 	void addPoint(const Vec2& p);
 

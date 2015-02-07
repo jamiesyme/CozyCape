@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Vec2 {
 public:
 	float x;
@@ -37,4 +39,6 @@ public:
 	void  normalize();
 	
 	float dot(const Vec2& v) const;
+	
+	std::string toString() const;
 };

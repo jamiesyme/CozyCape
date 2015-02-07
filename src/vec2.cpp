@@ -1,5 +1,6 @@
 #include "vec2.hpp"
 #include <cmath>
+#include <sstream>
 
 Vec2::Vec2()
 {
@@ -159,4 +160,15 @@ void Vec2::normalize()
 float Vec2::dot(const Vec2& v) const
 {
 	return x * v.x + y * v.y;
+}
+
+std::string Vec2::toString() const
+{
+	std::stringstream ss;
+	ss << "(";
+	ss << x;
+	ss << ", ";
+	ss << y;
+	ss << ")";
+	return ss.str();
 }
