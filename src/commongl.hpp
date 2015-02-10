@@ -4,6 +4,8 @@
 #include "color.hpp"
 
 namespace CommonGL {
+	void enableAlphaBlend();
+
 	void setColor(Color c);
 	void setBgColor(Color c);
 	

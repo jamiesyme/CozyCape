@@ -96,6 +96,11 @@ int Tiles::getTile(int x, int y) const
 	return mTiles[x * mSizeY + y];
 }
 
+int Tiles::getTileAt(const Vec2& p) const
+{
+	return getTile((int)std::floor(p.x), (int)std::floor(p.y));
+}
+
 int Tiles::getSizeX() const
 {
 	return mSizeX;

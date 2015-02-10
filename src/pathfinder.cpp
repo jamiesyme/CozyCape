@@ -1,7 +1,7 @@
 #include "pathfinder.hpp"
 #include "pathinfo.hpp"
 #include "tiles.hpp"
-#include "game.hpp"
+#include "entitymanager.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -22,7 +22,7 @@ bool PathFinder::findPath(const Vec2& s, const Vec2& e, PathInfo* info)
 {
 	// Get the tiles
 	if (mTiles == 0) {
-		mTiles = (Tiles*)Game::findEntityByType("tiles");
+		mTiles = (Tiles*)getManager()->findByType("tiles");
 		if (mTiles == 0)
 			return false;
 	}

@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "arrow.hpp"
 #include "game.hpp"
+#include "entitymanager.hpp"
 #include "events.hpp"
 #include "commongl.hpp"
 #include <cmath>
@@ -12,6 +13,7 @@ Player::Player()
 	mTickTimer.set(0.0);
 	mShotTimer.set(0.0);
 	mIsArrowHeld = false;
+	mHealth = 100.0f;
 	setBodyCircle(0.4f);
 	setType("player");
 	Events::addEar(this);
@@ -22,8 +24,24 @@ Player::~Player()
 	Events::removeEar(this);
 }
 
+class TempDeathScreen : public Entity {
+public:
+	void onDraw() {
+		CommonGL::setColor(Color::Red);
+		CommonGL::drawRect(Vec2(-1000.0f, -1000.0f), Vec2(1000.0f, 1000.0f));
+	}
+};
+
 void Player::onTick()
 {
+	// Kill ourself
+	static bool madeDeathScreen = false;
+	if (mHealth < 0.0f) {
+		if (!madeDeathScreen)
+			getManager()->manage(new TempDeathScreen());
+		return;
+	}
+
 	const float speed = 6.0f;
 	const float dt = (float)mTickTimer.get();
 	mTickTimer.set(0.0);
@@ -52,6 +70,14 @@ void Player::onDraw()
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
 }
 
+void Player::onMessage(const std::string& s, void* d)
+{
+	if (s == "hit by enemy") 
+	{
+		damage(10.0f);
+	}
+}
+
 void Player::onMouseMove(const int x, const int y)
 {
 	// Get relative coordinates
@@ -59,7 +85,8 @@ void Player::onMouseMove(const int x, const int y)
 	
 	// Aim ourselves
 	Vec2 dir = (wCoords - getPosition()).normalized();
-	if (dir.length2() == 0.0f) dir.x = 1.0f;
+	if (dir.length2() == 0.0f) 
+		dir.x = 1.0f;
 	setRotation(std::atan2(dir.y, dir.x));
 }
 
@@ -89,19 +116,14 @@ void Player::releaseArrow()
 		return;
 		
 	// Get the power
-	const float arrowPower = getArrowPower();
+	//const float arrowPower = getArrowPower();
 	mIsArrowHeld = false;
-	
-	// Calculate the direction
-	Vec2 dir = Vec2(std::cos(getRotation()), std::sin(getRotation()));
 	
 	// Shoot
 	Arrow* arrow = new Arrow();
-	arrow->setDirection(dir);
+	arrow->setRotation(getRotation());
 	arrow->setPosition(getPosition());
-	arrow->setDuration(arrowPower);
-	arrow->shoot();
-	Game::manageEntity(arrow);
+	getManager()->manage(arrow);
 }
 
 bool Player::isArrowHeld() const
@@ -118,4 +140,9 @@ float Player::getArrowPower() const
 	if (mShotTimer.get() >= 1.0)
 		return 1.0f;
 	return mShotTimer.get();
+}
+
+void Player::damage(const float dmg)
+{
+	mHealth -= dmg;
 }

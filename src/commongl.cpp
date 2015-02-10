@@ -3,6 +3,12 @@
 #include <cmath>
 
 namespace CommonGL {
+	void enableAlphaBlend()
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
 	void setColor(Color c)
 	{
 		glColor4ub(c.r, c.g, c.b, c.a);

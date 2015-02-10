@@ -2,7 +2,6 @@
 
 #include "entity.hpp"
 #include "clock.hpp"
-#include <vector>
 
 class Arrow : public Entity {
 public:
@@ -13,13 +12,15 @@ public:
 	void onDraw();
 	
 	void setDirection(const Vec2& dir);
-	void setDuration(const float d);
-	void shoot();
+	void setSpeed(const float speed);
+	
+	Vec2  getDirection() const;
+	float getSpeed() const;
+	float getLength() const;
+	float getAlpha() const;
 	
 private:
-	std::vector<Vec2> mTrail;
 	Clock::Timer mTickTimer;
-	Vec2  mDirection;
-	float mDuration;
-	float mAlpha;
+	float  mSpeed;
+	double mHitTime;
 };

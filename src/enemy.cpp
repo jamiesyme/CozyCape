@@ -1,9 +1,10 @@
 #include "enemy.hpp"
-#include "game.hpp"
+#include "entitymanager.hpp"
 #include "player.hpp"
 #include "pathfinder.hpp"
 #include "raycast.hpp"
 #include "commongl.hpp"
+#include "arrow.hpp"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
@@ -13,9 +14,12 @@ Enemy::Enemy()
 	mScanTimer.set(0.0);
 	mPathTimer.set(0.0);
 	mTickTimer.set(0.0);
+	mHitTimer.set(0.0);
 	mPathFinder = 0;
 	mPathIndex = -1;
 	mIsChasing = false;
+	mHealth = 100.0f;
+	mForceAffect = -1.0f;
 	setType("enemy");
 	setBodyCircle(0.4f);
 }
@@ -26,14 +30,20 @@ Enemy::~Enemy()
 
 void Enemy::onTick()
 {
+	// Kill us
+	if (mHealth <= 0.0f) {
+		getManager()->remove(this);
+		return;
+	}
+
 	// Get the Player and PathFinder
 	if (mPlayer == 0) {
-		mPlayer = Game::findEntityByType("player");
+		mPlayer = getManager()->findByType("player");
 		if (mPlayer == 0)
 			return;
 	}
 	if (mPathFinder == 0) {
-		mPathFinder = (PathFinder*)Game::findEntityByType("pathfinder");
+		mPathFinder = (PathFinder*)getManager()->findByType("pathfinder");
 		if (mPathFinder == 0)
 			return;
 	}
@@ -41,6 +51,13 @@ void Enemy::onTick()
 	// Get the delta time
 	const float dt = (float)mTickTimer.get();
 	mTickTimer.set(0.0);
+	
+	// Add the pusing force
+	if (mForceAffect > 0.0f) {
+		translate(mForce * 7.0f * mForceAffect * dt);
+		mForceAffect -= dt * 4;
+		return;
+	}
 	
 	// Check for line of sight
 	if (mScanTimer.get() > 0.2) 
@@ -52,7 +69,8 @@ void Enemy::onTick()
 		{
 			Ray ray(getPosition(), toPlayer.normalized());
 			RaycastInfo info;
-			if (Game::doRaycast(ray, &info) && info.entity == mPlayer)
+			if (getManager()->doRaycast(ray, &info) && 
+					info.entity == mPlayer)
 				mIsChasing = true;
 		}
 		mScanTimer.set(0.0);
@@ -87,6 +105,14 @@ void Enemy::onTick()
 				mPathIndex += 1;
 		}
 	}
+	
+	// Hit the player
+	if ((mPlayer->getPosition() - getPosition()).length() < 1.0f &&
+	    mHitTimer.get() > 1.0)
+	{
+		mPlayer->onMessage("hit by enemy", this);
+		mHitTimer.set(0.0);
+	}
 }
 
 void Enemy::onDraw()
@@ -98,6 +124,21 @@ void Enemy::onDraw()
 	CommonGL::drawCircle(getPosition(), getBodyRadius(), 24);
 	CommonGL::setColor(Color::White);
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
+}
+
+void Enemy::onMessage(const std::string& s, void* d)
+{
+	if (s == "hit by arrow") {
+		Arrow* arrow = (Arrow*)d;
+		Vec2 arrowDir = arrow->getDirection();
+		Vec2 eToArrow = (getPosition() - arrow->getPosition()).normalized();
+		float dot = eToArrow.dot(arrowDir);
+		//mForce = eToArrow;
+		mForce = arrowDir;
+		mForceAffect = dot;
+		
+		damage(25.0f);
+	}
 }
 
 void Enemy::moveTowards(const Vec2& p, const float dt)
@@ -115,4 +156,9 @@ float Enemy::getRange() const
 float Enemy::getSpeed() const
 {
 	return 4.5f;
+}
+
+void Enemy::damage(const float dmg)
+{
+	mHealth -= dmg;
 }

@@ -1,14 +1,14 @@
 #include "arrow.hpp"
-#include "game.hpp"
+#include "entitymanager.hpp"
 #include "raycast.hpp"
-#include <GL/gl.h>
+#include "commongl.hpp"
+#include <cmath>
 
 Arrow::Arrow()
 {
 	mTickTimer.set(0.0);
-	mDirection = Vec2(1.0f, 0.0f);
-	mDuration  = 1.0f;
-	mAlpha     = 1.0f;
+	mSpeed   = 14.0f;
+	mHitTime = -1.0;
 	setType("arrow");
 }
 
@@ -21,54 +21,78 @@ void Arrow::onTick()
 	const float dt = (float)mTickTimer.get();
 	mTickTimer.set(0.0);	
 	
-	mAlpha -= dt / mDuration;
-	if (mAlpha <= 0.0f)
-		Game::removeEntity(this);
+	// Calculate movement
+	Vec2 movement = getDirection() * getSpeed() * dt;
+	
+	// If we're moving, raycast
+	if (mHitTime < 0) {
+		float length = getLength() + movement.length();
+		Ray ray      = Ray(getPosition(), getDirection());
+		RaycastInfo info;
+		if (getManager()->doRaycast(ray, &info) &&
+		    info.distance <= length) 
+		{
+			if (info.entity->getType() == "tiles") {
+				movement = info.point - (getPosition() + getDirection() * getLength());
+				mHitTime = Clock::getTime();
+			} else
+			if (info.entity->getType() == "enemy") {
+				info.entity->onMessage("hit by arrow", this);
+				getManager()->remove(this);
+				return;
+			}
+		}
+	} else
+		movement = Vec2();
+		
+	// Move
+	translate(movement);
+	
+	// Kill ourself
+	if (getAlpha() <= 0.0f)
+		getManager()->remove(this);
 }
 
 void Arrow::onDraw()
 {
-	glColor3f(1.0f, 1.0f - mAlpha, 1.0f - mAlpha);
-	glBegin(GL_LINES);
-	for (int i = 0; i < mTrail.size(); i += 2)
-	{
-		const Vec2 p1 = mTrail[i + 0];
-		const Vec2 p2 = mTrail[i + 1];
-		glVertex2f(p1.x, p1.y);
-		glVertex2f(p2.x, p2.y);
-	}
-	glEnd();
+	CommonGL::setColor(Color(0.3f, 0.4f, 0.3f, getAlpha()));
+	CommonGL::push();
+	CommonGL::translate(getPosition());
+	CommonGL::rotateZ(getRotationAsDeg());
+	CommonGL::drawRect(Vec2(0.0f, -0.05f), Vec2(getLength(), 0.05f));
+	CommonGL::pop();
 }
 
 void Arrow::setDirection(const Vec2& dir)
 {
-	if (dir.length2() == 0.0f)
-		return;
-	mDirection = dir.normalized();
+	setRotation(std::atan2(dir.y, dir.x));
 }
 
-void Arrow::setDuration(const float d)
+void Arrow::setSpeed(const float speed)
 {
-	if (d <= 0.0f)
-		return;
-	mDuration = d;
+	mSpeed = speed;
 }
 
-void Arrow::shoot()
+Vec2 Arrow::getDirection() const
 {
-	// Clear the trail
-	mTrail.clear();
-	
-	// Raycast
-	Ray ray(getPosition(), mDirection);
-	RaycastInfo info;
-	if (Game::doRaycast(ray, &info))
-	{
-		mTrail.push_back(getPosition());
-		mTrail.push_back(info.point);
-	} else
-	{
-		mTrail.push_back(getPosition());
-		mTrail.push_back(getPosition() + mDirection * 1000.0f);
-	}
+	const float rad = getRotation();
+	return Vec2(std::cos(rad), std::sin(rad));
+}
+
+float Arrow::getSpeed() const
+{
+	return mSpeed;
+}
+
+float Arrow::getLength() const
+{
+	return 0.6f;
+}
+
+float Arrow::getAlpha() const
+{
+	if (mHitTime < 0.0)
+		return 1.0f;
+	const double time = (Clock::getTime() - mHitTime);
+	return (float)(1.0f - time);
 }

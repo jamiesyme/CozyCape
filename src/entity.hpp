@@ -4,6 +4,7 @@
 #include <string>
 class Ray;
 class RaycastInfo;
+class EntityManager;
 
 class Entity {
 public:
@@ -13,6 +14,9 @@ public:
 	virtual void onTick();
 	virtual void onDraw();
 	virtual void onMessage(const std::string& s, void* d);
+	
+	void setManager(EntityManager* mgr);
+	EntityManager* getManager();
 	
 	void setName(const std::string& name);
 	void setType(const std::string& type);
@@ -45,6 +49,7 @@ public:
 	virtual bool  doComplexBodyRaycast(const Ray& ray, RaycastInfo* info);
 
 private:
+	EntityManager* mMgr;
 	std::string mName;
 	std::string mType;
 	Vec2  mPos;

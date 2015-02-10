@@ -2,6 +2,7 @@
 
 Entity::Entity()
 {
+	mMgr      = 0;
 	mName     = std::string();
 	mType     = std::string();
 	mPos      = Vec2();
@@ -29,6 +30,16 @@ void Entity::onMessage(const std::string& s, void* d)
 {
 	// Do nothing.
 }
+
+void Entity::setManager(EntityManager* mgr)
+{
+	mMgr = mgr;
+}
+
+EntityManager* Entity::getManager()
+{
+	return mMgr;
+}	
 
 void Entity::setName(const std::string& name)
 {
