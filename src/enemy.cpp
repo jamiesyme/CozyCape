@@ -22,6 +22,7 @@ Enemy::Enemy()
 	mForceAffect = -1.0f;
 	setType("enemy");
 	setBodyCircle(0.4f);
+	setDepth(-0.8f);
 }
 
 Enemy::~Enemy()
@@ -117,13 +118,15 @@ void Enemy::onTick()
 
 void Enemy::onDraw()
 {
-	if (mIsChasing)
-		CommonGL::setColor(Color::Red);
-	else
-		CommonGL::setColor(Color::Grey);
+	CommonGL::push();
+	CommonGL::translateZ(getDepth());
+	if (mIsChasing) CommonGL::setColor(Color::Red);
+	else            CommonGL::setColor(Color::Grey);
 	CommonGL::drawCircle(getPosition(), getBodyRadius(), 24);
+	CommonGL::translateZ(0.05f);
 	CommonGL::setColor(Color::White);
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
+	CommonGL::pop();
 }
 
 void Enemy::onMessage(const std::string& s, void* d)

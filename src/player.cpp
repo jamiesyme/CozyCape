@@ -14,8 +14,9 @@ Player::Player()
 	mShotTimer.set(0.0);
 	mIsArrowHeld = false;
 	mHealth = 100.0f;
-	setBodyCircle(0.4f);
 	setType("player");
+	setBodyCircle(0.4f);
+	setDepth(-0.5f);
 	Events::addEar(this);
 }
 
@@ -27,8 +28,10 @@ Player::~Player()
 class TempDeathScreen : public Entity {
 public:
 	void onDraw() {
+		CommonGL::translateZ(-0.1f);
 		CommonGL::setColor(Color::Red);
 		CommonGL::drawRect(Vec2(-1000.0f, -1000.0f), Vec2(1000.0f, 1000.0f));
+		CommonGL::translateZ(0.1f);
 	}
 };
 
@@ -64,10 +67,14 @@ void Player::onTick()
 
 void Player::onDraw()
 {
+	CommonGL::push();
+	CommonGL::translateZ(getDepth());
 	CommonGL::setColor(Color::Black);
 	CommonGL::drawCircle(getPosition(), getBodyRadius(), 24);
+	CommonGL::translateZ(0.05f);
 	CommonGL::setColor(Color::White);
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
+	CommonGL::pop();
 }
 
 void Player::onMessage(const std::string& s, void* d)

@@ -10,6 +10,7 @@ Arrow::Arrow()
 	mSpeed   = 14.0f;
 	mHitTime = -1.0;
 	setType("arrow");
+	setDepth(-0.55f);
 }
 
 Arrow::~Arrow()
@@ -58,6 +59,7 @@ void Arrow::onDraw()
 	CommonGL::setColor(Color(0.3f, 0.4f, 0.3f, getAlpha()));
 	CommonGL::push();
 	CommonGL::translate(getPosition());
+	CommonGL::translateZ(getDepth());
 	CommonGL::rotateZ(getRotationAsDeg());
 	CommonGL::drawRect(Vec2(0.0f, -0.05f), Vec2(getLength(), 0.05f));
 	CommonGL::pop();

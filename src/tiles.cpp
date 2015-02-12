@@ -4,6 +4,7 @@
 #include "image.hpp"
 #include "commongl.hpp"
 #include <cmath>
+#include <iostream>
 
 Tiles::Tiles()
 {
@@ -12,6 +13,7 @@ Tiles::Tiles()
 	mSizeY = 0;
 	setType("tiles");
 	setBodyComplex();
+	setDepth(-0.95f);
 }
 
 Tiles::Tiles(int w, int h)
@@ -21,6 +23,7 @@ Tiles::Tiles(int w, int h)
 	mSizeY = 0;
 	setType("tiles");
 	setBodyComplex();
+	setDepth(-0.95f);
 	reset(w, h);
 }
 
@@ -31,6 +34,7 @@ Tiles::~Tiles()
 
 void Tiles::onDraw()
 {
+	CommonGL::translateZ(getDepth());
 	CommonGL::setColor(Color::White);
 	for (int x = 0; x < mSizeX; x++) {
 		for (int y = 0; y < mSizeY; y++) {
@@ -42,6 +46,7 @@ void Tiles::onDraw()
 			}
 		}
 	}
+	CommonGL::translateZ(-getDepth());
 }
 
 void Tiles::load(const std::string& filename)

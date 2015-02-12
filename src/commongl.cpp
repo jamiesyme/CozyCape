@@ -8,6 +8,11 @@ namespace CommonGL {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+	
+	void enableDepthTest()
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
 
 	void setColor(Color c)
 	{
@@ -54,6 +59,11 @@ namespace CommonGL {
 	void translate(const Vec2& t)
 	{
 		glTranslatef(t.x, t.y, 0.0f);
+	}
+	
+	void translateZ(const float z)
+	{
+		glTranslatef(0.0f, 0.0f, z);
 	}
 	
 	void rotateZ(const float deg)

@@ -26,11 +26,14 @@ public:
 	void translate(const Vec2& v);
 	void rotate(const float rad);
 	
-	void setPosition(const Vec2& p);
-	void setRotation(const float rad);
+	void  setPosition(const Vec2& p);
+	void  setRotation(const float rad);
 	Vec2  getPosition()      const;
 	float getRotation()      const;
 	float getRotationAsDeg() const;
+	
+	void  setDepth(const float d);
+	float getDepth() const;
 	
 	void setBodyEmpty();
 	void setBodyCircle(const float radius);
@@ -54,6 +57,7 @@ private:
 	std::string mType;
 	Vec2  mPos;
 	float mRot;
+	float mDepth;
 	int   mBodyType; // 1 = circle, 2 = rect, 3 = complex, ? = empty
 	float mRadius;
 	Vec2  mRect;

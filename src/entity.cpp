@@ -7,6 +7,7 @@ Entity::Entity()
 	mType     = std::string();
 	mPos      = Vec2();
 	mRot      = 0.0f;
+	mDepth    = 0.0f;
 	mBodyType = 0;     // Empty
 	mRadius   = 0.0f;
 	mRect     = Vec2();
@@ -94,6 +95,16 @@ float Entity::getRotation() const
 float Entity::getRotationAsDeg() const
 {
 	return mRot * 180.0f / 3.141592654f;
+}
+
+void Entity::setDepth(const float d)
+{
+	mDepth = d;
+}
+
+float Entity::getDepth() const
+{
+	return mDepth;
 }
 
 void Entity::setBodyEmpty()

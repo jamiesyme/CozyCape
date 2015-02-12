@@ -49,6 +49,7 @@ void Game::run()
 	// Initialize opengl
 	CommonGL::setBgColor(Color::Black);
 	CommonGL::enableAlphaBlend();
+	CommonGL::enableDepthTest();
 	
 	// Create the tiles
 	{
@@ -101,7 +102,7 @@ void Game::run()
 		mEntMgr->onPhysics();
 		
 		// Draw
-		CommonGL::clearColor();
+		CommonGL::clearColorAndDepth();
 		if (mCamera != 0)
 			mCamera->bind();
 		mEntMgr->onDraw();

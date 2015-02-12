@@ -5,6 +5,7 @@
 
 namespace CommonGL {
 	void enableAlphaBlend();
+	void enableDepthTest();
 
 	void setColor(Color c);
 	void setBgColor(Color c);
@@ -17,6 +18,7 @@ namespace CommonGL {
 	void push();
 	void pop();
 	void translate(const Vec2& t);
+	void translateZ(const float z);
 	void rotateZ(const float deg);
 	
 	void drawRect(const Vec2& v1, const Vec2& v2);
