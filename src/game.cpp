@@ -102,7 +102,8 @@ void Game::run()
 		mEntMgr->onPhysics();
 		
 		// Draw
-		CommonGL::clearColorAndDepth();
+		CommonGL::clearColor();
+		CommonGL::clearDepth();
 		if (mCamera != 0)
 			mCamera->bind();
 		mEntMgr->onDraw();

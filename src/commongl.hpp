@@ -13,7 +13,7 @@ namespace CommonGL {
 	void setOrtho(const Vec2& x, const Vec2& y, const Vec2& z);
 	
 	void clearColor();
-	void clearColorAndDepth();
+	void clearDepth();
 	
 	void push();
 	void pop();
