@@ -1,19 +1,24 @@
 #pragma once
 
-#include "entity.hpp"
-#include "clock.hpp"
 #include <vector>
+#include "gameobject.hpp"
+#include "tickable.hpp"
+#include "counter.hpp"
+#include "vec2.hpp"
 
-class Spawner : public Entity {
+class Spawner : public GameObject,
+                public Tickable {
 public:
 	Spawner();
 	~Spawner();
 	
-	void onTick();
+	void onInit();
+	void onKill();
+	void onTick(float dt);
 	
 	void addPoint(const Vec2& p);
 
 private:
 	std::vector<Vec2> mPoints;
-	Clock::Timer mSpawnTimer;
+	Counter mSpawnTimer;
 };

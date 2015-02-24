@@ -2,52 +2,68 @@
 #include "keyboard.hpp"
 #include "camera.hpp"
 #include "arrow.hpp"
-#include "game.hpp"
-#include "entitymanager.hpp"
-#include "events.hpp"
+#include "gameobjectgod.hpp"
+#include "tickgod.hpp"
+#include "drawgod.hpp"
+#include "triggergod.hpp"
+#include "physicsgod.hpp"
 #include "commongl.hpp"
 #include <cmath>
 
 Player::Player()
 {
-	mTickTimer.set(0.0);
-	mShotTimer.set(0.0);
 	mIsArrowHeld = false;
-	mHealth = 100.0f;
+	mHealth = 6.0f;
 	setType("player");
 	setBodyCircle(0.4f);
-	setDepth(-0.5f);
-	Events::addEar(this);
+	setBodyGo(this);
 }
 
 Player::~Player()
 {
-	Events::removeEar(this);
 }
 
-class TempDeathScreen : public Entity {
+void Player::onInit()
+{
+	getTickGod()->addTo("players", this);
+	getDrawGod()->addTo("players", this);
+	getTriggerGod()->addTo("game", this);
+	getPhysicsGod()->add(this);
+}
+
+void Player::onKill()
+{
+	getTickGod()->removeFrom("players", this);
+	getDrawGod()->removeFrom("players", this);
+	getTriggerGod()->removeFrom("game", this);
+	getPhysicsGod()->remove(this);
+}
+
+class TempDeathScreen : public GameObject, public Drawable {
 public:
+	void onInit() {
+		getDrawGod()->addTo("post", this);
+	}
+	void onKill() {
+		getDrawGod()->removeFrom("post", this);
+	}
 	void onDraw() {
-		CommonGL::translateZ(-0.1f);
 		CommonGL::setColor(Color::Red);
 		CommonGL::drawRect(Vec2(-1000.0f, -1000.0f), Vec2(1000.0f, 1000.0f));
-		CommonGL::translateZ(0.1f);
 	}
 };
 
-void Player::onTick()
+void Player::onTick(float dt)
 {
 	// Kill ourself
 	static bool madeDeathScreen = false;
-	if (mHealth < 0.0f) {
-		if (!madeDeathScreen)
-			getManager()->manage(new TempDeathScreen());
+	if (mHealth <= 0.0f) {
+		if (!madeDeathScreen) {
+			getGod()->manage(new TempDeathScreen());
+			madeDeathScreen = true;
+		}
 		return;
 	}
-
-	const float speed = 6.0f;
-	const float dt = (float)mTickTimer.get();
-	mTickTimer.set(0.0);
 	
 	Vec2 moveVec;
 	if (Keyboard::isKeyDown("w"))
@@ -61,34 +77,31 @@ void Player::onTick()
 		
 	if (moveVec.length2() != 0.0f) {
 		moveVec.normalize();
-		translate(moveVec * speed * dt);
+		translate(moveVec * getSpeed() * dt);
 	}
 }
 
 void Player::onDraw()
 {
-	CommonGL::push();
-	CommonGL::translateZ(getDepth());
 	CommonGL::setColor(Color::Black);
 	CommonGL::drawCircle(getPosition(), getBodyRadius(), 24);
-	CommonGL::translateZ(0.05f);
 	CommonGL::setColor(Color::White);
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
-	CommonGL::pop();
 }
 
 void Player::onMessage(const std::string& s, void* d)
 {
 	if (s == "hit by enemy") 
 	{
-		damage(10.0f);
+		damage(1.0f);
 	}
 }
 
 void Player::onMouseMove(const int x, const int y)
 {
 	// Get relative coordinates
-	const Vec2 wCoords = Game::getCamera()->getWorldPos(x, y);
+	Camera* camera = getGod()->getDrawGod()->getCamera("main");
+	const Vec2 wCoords = camera->getWorldPos(x, y);
 	
 	// Aim ourselves
 	Vec2 dir = (wCoords - getPosition()).normalized();
@@ -111,26 +124,19 @@ void Player::onMouseUp(const std::string& button)
 
 void Player::pullArrow()
 {
-	if (mIsArrowHeld)
-		return;
 	mIsArrowHeld = true;
-	mShotTimer.set(0.0);
 }
 
 void Player::releaseArrow()
 {
 	if (!mIsArrowHeld)
 		return;
-		
-	// Get the power
-	//const float arrowPower = getArrowPower();
-	mIsArrowHeld = false;
 	
-	// Shoot
 	Arrow* arrow = new Arrow();
 	arrow->setRotation(getRotation());
 	arrow->setPosition(getPosition());
-	getManager()->manage(arrow);
+	getGod()->manage(arrow);
+	mIsArrowHeld = false;
 }
 
 bool Player::isArrowHeld() const
@@ -138,18 +144,17 @@ bool Player::isArrowHeld() const
 	return mIsArrowHeld;
 }
 
-float Player::getArrowPower() const
+float Player::getSpeed() const
 {
-	if (!mIsArrowHeld)
-		return 0.0f;
-	if (mShotTimer.get() <= 0.2)
-		return 0.2f;
-	if (mShotTimer.get() >= 1.0)
-		return 1.0f;
-	return mShotTimer.get();
+	return 5.0f;
 }
 
 void Player::damage(const float dmg)
 {
 	mHealth -= dmg;
+}
+
+float Player::getHealth() const
+{
+	return mHealth;
 }

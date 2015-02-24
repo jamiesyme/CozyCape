@@ -1,15 +1,19 @@
 #pragma once
 
-#include "entity.hpp"
-#include <string>
-class PathInfo;
+#include "gameobject.hpp"
+#include "body.hpp"
+#include "drawable.hpp"
 
-class Tiles : public Entity {
+class Tiles : public GameObject, 
+              public Body, 
+              public Drawable {
 public:
 	Tiles();
 	Tiles(int sizeX, int sizeY);
 	~Tiles();
 	
+	void onInit();
+	void onKill();
 	void onDraw();
 	
 	void load(const std::string& filename);
@@ -23,8 +27,8 @@ public:
 	int getSizeX() const;
 	int getSizeY() const;
 	
-	bool fixComplexBodyCollision(Entity* e);
-	bool  doComplexBodyRaycast(const Ray& ray, RaycastInfo* info);
+	bool fixBodyCollision(Body* b);
+	bool  doRaycast(Raycast& ray);
 
 private:
 	int* mTiles;

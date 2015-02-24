@@ -1,57 +1,78 @@
 #include "camera.hpp"
 #include "commongl.hpp"
 #include "window.hpp"
-#include <cmath>
 
-Camera::Camera(const Vec2& size)
+Camera::Camera(const std::string& name)
 {
-	mFollow = 0;
-	mFollowRadius = 0.0f;
-	setSize(size);
+	mName = name;
 }
 
 Camera::~Camera()
 {
 }
 
-void Camera::setSize(const Vec2& s)
+std::string Camera::getName() const
 {
-	mSize = s;
+	return mName;
+}
+
+void Camera::onBind()
+{
+	CommonGL::setOrtho(Vec2(mBl.x, mTr.x), 
+	                   Vec2(mTr.y, mBl.y), 
+	                   Vec2(-1.0f, 1.0f));
+}
+
+void Camera::set(const Vec2& bl, const Vec2& tr)
+{
+	mBl = bl;
+	mTr = tr;
+}
+
+void Camera::center(const Vec2& on)
+{
+	const Vec2 size = getSize();
+	mBl = on - size / 2.0f;
+	mTr = on + size / 2.0f;
+}
+
+Vec2 Camera::getBottomLeft() const
+{
+	return mBl;
+}
+
+Vec2 Camera::getBottomRight() const
+{
+	return Vec2(mTr.x, mBl.y);
+}
+
+Vec2 Camera::getTopLeft() const
+{
+	return Vec2(mBl.x, mTr.y);
+}
+
+Vec2 Camera::getTopRight() const
+{
+	return mTr;
+}
+
+Vec2 Camera::getCenter() const
+{
+	return mBl + getSize() / 2.0f;
 }
 
 Vec2 Camera::getSize() const
 {
-	return mSize;
+	return Vec2(mTr.x - mBl.x, mTr.y - mBl.y);
 }
 
-Vec2 Camera::getWorldPos(int pixelX, int pixelY) const
+Vec2 Camera::getWorldPos(const int pixelX, const int pixelY)
 {
-	Vec2 pos = getPosition() - getSize() / 2.0f;
-	pos.x += (float)pixelX / (float)Window::getWidth()  * getSize().x;
-	pos.y += (float)pixelY / (float)Window::getHeight() * getSize().y;
+	const int ww = Window::getWidth();
+	const int wh = Window::getHeight();
+	Vec2 size = getSize();
+	Vec2 pos  = getBottomLeft();
+	pos.x += (float)pixelX / (float)ww * size.x;
+	pos.y += (float)pixelY / (float)wh * size.y;
 	return pos;
-}
-
-void Camera::bind()
-{
-	// Follow our entity
-	if (mFollow != 0) 
-	{
-		const Vec2  diff = mFollow->getPosition() - getPosition();
-		const float dist = diff.length();
-		if (dist > mFollowRadius) 
-			translate(diff.normalized() * (dist - mFollowRadius));
-	}
-
-	// Apply the camera settings to OpenGL
-	CommonGL::setOrtho(Vec2(0.0f, mSize.x),
-	                   Vec2(mSize.y, 0.0f),
-	                   Vec2(-1.0f, 1.0f));
-	CommonGL::translate(-(getPosition() - mSize / 2));
-}
-
-void Camera::follow(Entity* e, float radius)
-{
-	mFollow = e;
-	mFollowRadius = radius;
 }

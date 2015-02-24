@@ -1,15 +1,13 @@
 #include "pathfinder.hpp"
-#include "pathinfo.hpp"
 #include "tiles.hpp"
-#include "entitymanager.hpp"
+#include "gameobjectgod.hpp"
 #include <cmath>
-#include <iostream>
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
 PathFinder::PathFinder()
 {
-	mTiles = 0;
+	mTiles    = 0;
 	mNodeGrid = 0;
 	setType("pathfinder");
 }
@@ -22,7 +20,7 @@ bool PathFinder::findPath(const Vec2& s, const Vec2& e, PathInfo* info)
 {
 	// Get the tiles
 	if (mTiles == 0) {
-		mTiles = (Tiles*)getManager()->findByType("tiles");
+		mTiles = (Tiles*)getGod()->findByType("tiles");
 		if (mTiles == 0)
 			return false;
 	}

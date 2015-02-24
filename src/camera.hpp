@@ -1,22 +1,30 @@
 #pragma once
 
-#include "entity.hpp"
+#include <string>
+#include "vec2.hpp"
 
-class Camera : public Entity {
+class Camera {
 public:
-	Camera(const Vec2& size);
+	Camera(const std::string& name);
 	~Camera();
 	
-	void setSize(const Vec2& s);
+	std::string getName() const;
+	
+	void onBind();
+	
+	void set(const Vec2& bl, const Vec2& tr);
+	void center(const Vec2& on);
+	Vec2 getBottomLeft() const;
+	Vec2 getBottomRight() const;
+	Vec2 getTopLeft() const;
+	Vec2 getTopRight() const;
+	Vec2 getCenter() const;
 	Vec2 getSize() const;
 	
-	Vec2 getWorldPos(int pixelX, int pixelY) const;
-	
-	void bind();
-	void follow(Entity* e, float radius);
-	
+	Vec2 getWorldPos(const int pixelX, const int pixelY);
+
 private:
-	Vec2    mSize;
-	Entity* mFollow;
-	float   mFollowRadius;
+	std::string mName;
+	Vec2 mBl;
+	Vec2 mTr;
 };

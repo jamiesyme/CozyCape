@@ -1,10 +1,10 @@
 #pragma once
 
-#include "entity.hpp"
-class PathInfo;
+#include "gameobject.hpp"
+#include "pathinfo.hpp"
 class Tiles;
 
-class PathFinder : public Entity {
+class PathFinder : public GameObject {
 public:
 	PathFinder();
 	~PathFinder();

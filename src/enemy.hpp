@@ -1,35 +1,44 @@
 #pragma once
 
-#include "entity.hpp"
-#include "clock.hpp"
+#include "gameobject.hpp"
+#include "body.hpp"
+#include "tickable.hpp"
+#include "drawable.hpp"
+#include "counter.hpp"
 #include "pathinfo.hpp"
 class PathFinder;
+class Player;
 
-class Enemy : public Entity {
+class Enemy : public GameObject,
+              public Body,
+              public Tickable,
+              public Drawable {
 public:
 	Enemy();
 	~Enemy();
 	
-	void onTick();
+	void onInit();
+	void onKill();
+	void onTick(float dt);
 	void onDraw();
 	void onMessage(const std::string& s, void* d);
 	
 	void moveTowards(const Vec2& p, const float dt);
-	float getRange() const;
+	float getSightRange() const;
+	float getAttackRange() const;
 	float getSpeed() const;
 	
 	void damage(const float dmg);
 
 private:
-	Entity* mPlayer;
-	Clock::Timer mScanTimer;
-	Clock::Timer mPathTimer;
-	Clock::Timer mTickTimer;
-	Clock::Timer mHitTimer;
+	Counter mScanTimer;
+	Counter mPathTimer;
+	Counter mAttackTimer;
+	Player*     mPlayer;
 	PathFinder* mPathFinder;
-	PathInfo mPath;
-	int  mPathIndex;
-	bool mIsChasing;
+	PathInfo    mPath;
+	int         mPathIndex;
+	bool  mIsPlayerInSight;
 	float mHealth;
 	
 	Vec2  mForce;

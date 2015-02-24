@@ -1,57 +1,77 @@
 #include "arrow.hpp"
-#include "entitymanager.hpp"
-#include "raycast.hpp"
+#include "gameobjectgod.hpp"
+#include "tickgod.hpp"
+#include "drawgod.hpp"
 #include "commongl.hpp"
 #include <cmath>
 
 Arrow::Arrow()
 {
-	mTickTimer.set(0.0);
-	mSpeed   = 14.0f;
-	mHitTime = -1.0;
+	mStuck = false;
+	mSpeed = 14.0f;
+	mFadeTimer.setGoal(1.0f);
 	setType("arrow");
-	setDepth(-0.55f);
 }
 
 Arrow::~Arrow()
 {
 }
 
-void Arrow::onTick()
+void Arrow::onInit()
 {
-	const float dt = (float)mTickTimer.get();
-	mTickTimer.set(0.0);	
-	
-	// Calculate movement
-	Vec2 movement = getDirection() * getSpeed() * dt;
-	
-	// If we're moving, raycast
-	if (mHitTime < 0) {
-		float length = getLength() + movement.length();
-		Ray ray      = Ray(getPosition(), getDirection());
-		RaycastInfo info;
-		if (getManager()->doRaycast(ray, &info) &&
-		    info.distance <= length) 
+	getTickGod()->addTo("arrows", this);
+	getDrawGod()->addTo("arrows", this);
+}
+
+void Arrow::onKill()
+{
+	getTickGod()->removeFrom("arrows", this);
+	getDrawGod()->removeFrom("arrows", this);
+}
+
+void Arrow::onTick(float dt)
+{
+	// If we are stuck, fade
+	mFadeTimer.addTime(dt);
+
+	// If we are moving, raycast in front of us
+	if (!mStuck) 
+	{
+		// Get the ray info
+		float moveDist  = getSpeed() * dt;
+		float rayLength = getLength() + moveDist;
+		Raycast ray(getPosition(), getDirection());
+		
+		// Do the raycast
+		if (getGod()->doRaycast(ray, rayLength))
 		{
-			if (info.entity->getType() == "tiles") {
-				movement = info.point - (getPosition() + getDirection() * getLength());
-				mHitTime = Clock::getTime();
-			} else
-			if (info.entity->getType() == "enemy") {
-				info.entity->onMessage("hit by arrow", this);
-				getManager()->remove(this);
-				return;
+			// Get the gameobject
+			GameObject* go = ray.hitBody->getBodyGo();
+			if (go != 0) 
+			{
+				// Hit a tile
+				if (go->getType() == "tiles") {
+					mStuck = true;
+					setPosition(ray.hitPoint - getDirection() * getLength());
+				} else
+				
+				// Hit an enemy
+				if (go->getType() == "enemy") {
+					go->onMessage("hit by arrow", this);
+					getGod()->remove(this);
+					return;
+				}
 			}
 		}
-	} else
-		movement = Vec2();
-		
-	// Move
-	translate(movement);
+	}
+	
+	// If we aren't stuck, move us forward
+	if (!mStuck)
+		translate(getDirection() * getSpeed() * dt);
 	
 	// Kill ourself
 	if (getAlpha() <= 0.0f)
-		getManager()->remove(this);
+		getGod()->remove(this);
 }
 
 void Arrow::onDraw()
@@ -59,7 +79,6 @@ void Arrow::onDraw()
 	CommonGL::setColor(Color(0.3f, 0.4f, 0.3f, getAlpha()));
 	CommonGL::push();
 	CommonGL::translate(getPosition());
-	CommonGL::translateZ(getDepth());
 	CommonGL::rotateZ(getRotationAsDeg());
 	CommonGL::drawRect(Vec2(0.0f, -0.05f), Vec2(getLength(), 0.05f));
 	CommonGL::pop();
@@ -93,8 +112,7 @@ float Arrow::getLength() const
 
 float Arrow::getAlpha() const
 {
-	if (mHitTime < 0.0)
-		return 1.0f;
-	const double time = (Clock::getTime() - mHitTime);
-	return (float)(1.0f - time);
+	if (mFadeTimer.reachedGoal())
+		return 0.0f;
+	return mFadeTimer.timeUntilGoal() / mFadeTimer.getGoal();
 }

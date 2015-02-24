@@ -1,10 +1,10 @@
 #include "tiles.hpp"
 #include "raycast.hpp"
-#include "pathinfo.hpp"
 #include "image.hpp"
 #include "commongl.hpp"
+#include "drawgod.hpp"
+#include "physicsgod.hpp"
 #include <cmath>
-#include <iostream>
 
 Tiles::Tiles()
 {
@@ -13,7 +13,7 @@ Tiles::Tiles()
 	mSizeY = 0;
 	setType("tiles");
 	setBodyComplex();
-	setDepth(-0.95f);
+	setBodyGo(this);
 }
 
 Tiles::Tiles(int w, int h)
@@ -23,7 +23,7 @@ Tiles::Tiles(int w, int h)
 	mSizeY = 0;
 	setType("tiles");
 	setBodyComplex();
-	setDepth(-0.95f);
+	setBodyGo(this);
 	reset(w, h);
 }
 
@@ -32,21 +32,32 @@ Tiles::~Tiles()
 	delete[] mTiles;
 }
 
+void Tiles::onInit()
+{
+	getDrawGod()->addTo("map", this);
+	getPhysicsGod()->add(this);
+}
+
+void Tiles::onKill()
+{
+	getDrawGod()->removeFrom("map", this);
+	getPhysicsGod()->remove(this);
+}
+
 void Tiles::onDraw()
 {
-	CommonGL::translateZ(getDepth());
-	CommonGL::setColor(Color::White);
 	for (int x = 0; x < mSizeX; x++) {
 		for (int y = 0; y < mSizeY; y++) {
 			const int tile = getTile(x, y);
-			if (tile == 0) {
-				const Vec2 p1 = Vec2((float)x, (float)y);
-				const Vec2 p2 = p1 + Vec2(1, 1);
-				CommonGL::drawRect(p1, p2);
-			}
+			if (tile == 0)
+				CommonGL::setColor(Color::White);
+			else
+				CommonGL::setColor(Color::Black);
+			const Vec2 p1 = Vec2((float)x, (float)y);
+			const Vec2 p2 = p1 + Vec2(1, 1);
+			CommonGL::drawRect(p1, p2);
 		}
 	}
-	CommonGL::translateZ(-getDepth());
 }
 
 void Tiles::load(const std::string& filename)
@@ -121,14 +132,14 @@ static bool isPointInSolid(Tiles* t, const Vec2& p)
 	return (t->getTile((int)std::floor(p.x), (int)std::floor(p.y)) > 0);
 }
 
-bool Tiles::fixComplexBodyCollision(Entity* e)
+bool Tiles::fixBodyCollision(Body* b)
 {
 	// NOTE: Only deal with circle shapes right now.
-	if (!e->isBodyCircle())
+	if (!b->isBodyCircle())
 		return false;
 		
-	Vec2  p      = e->getPosition();
-	float radius = e->getBodyRadius();
+	Vec2  p      = b->getPosition();
+	float radius = b->getBodyRadius();
 	bool madeFix = false;
 	
 	// Check adjacent blocks
@@ -192,21 +203,20 @@ bool Tiles::fixComplexBodyCollision(Entity* e)
 	}
 	
 	if (madeFix)
-		e->setPosition(p);
+		b->setPosition(p);
 	
 	return madeFix;
 }
 
-bool Tiles::doComplexBodyRaycast(const Ray& ray, RaycastInfo* info)
+bool Tiles::doRaycast(Raycast& ray)
 {
 	// Early out
 	if (ray.direction.length2() == 0.0f)
 		return false;
 		
 	// Get the beginning stats
-	bool didHit = false;
-	float x = ray.position.x;
-	float y = ray.position.y;
+	float x = ray.origin.x;
+	float y = ray.origin.y;
 	int tx  = (int)std::floor(x);
 	int ty  = (int)std::floor(y);
 	int dtx = (ray.direction.x < 0 ? -1 : (ray.direction.x > 0 ? 1 : 0));
@@ -264,14 +274,11 @@ bool Tiles::doComplexBodyRaycast(const Ray& ray, RaycastInfo* info)
 		// Check if the current tile is solid
 		if (getTile(tx, ty) > 0)
 		{
-			if (info != 0) {
-				info->point  = Vec2(x, y);
-				info->normal = Vec2(-(float)mtx, -(float)mty);
-			}
-			didHit = true;
-			break;
+			ray.hitPoint  = Vec2(x, y);
+			ray.hitNormal = Vec2(-(float)mtx, -(float)mty);
+			return true;
 		}
 	}
 	
-	return didHit;
+	return false;
 }

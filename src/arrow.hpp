@@ -1,14 +1,22 @@
 #pragma once
 
-#include "entity.hpp"
-#include "clock.hpp"
+#include "gameobject.hpp"
+#include "body.hpp"
+#include "tickable.hpp"
+#include "drawable.hpp"
+#include "counter.hpp"
 
-class Arrow : public Entity {
+class Arrow : public GameObject,
+              public Body,
+              public Tickable,
+              public Drawable {
 public:
 	Arrow();
 	~Arrow();
 	
-	void onTick();
+	void onInit();
+	void onKill();
+	void onTick(float dt);
 	void onDraw();
 	
 	void setDirection(const Vec2& dir);
@@ -20,7 +28,7 @@ public:
 	float getAlpha() const;
 	
 private:
-	Clock::Timer mTickTimer;
-	float  mSpeed;
-	double mHitTime;
+	bool    mStuck;
+	float   mSpeed;
+	Counter mFadeTimer;
 };
