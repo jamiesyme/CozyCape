@@ -1,0 +1,23 @@
+=== February 6th, 2015 ===
+And so the project begins! Or... well, it began a little while ago. January 20th to be exact. But the development log starts here! We've been in development for a couple weeks now, so let me give you a quick summary of where we're at.
+
+We have a player. And a camera. And some tiles. We also have some basic enemies that pathfind around the map (thank you A-Star). When you're in sight, they charge at you like a bull! Only it's quite a bit less dramatic than that.
+
+We also have arrows! Or balls. I don't know, they're kind of round for testing purposes right now, but they will be arrows eventually! For now, though, they'll be sticky, do-nothing balls.
+
+What I want to get implemented right away is health. I want to turn this game into a GAME. Not just a tilemap with some simple physics, simple pathfinding, and simple enemies... it's all too basic. Oh right, I haven't even explained what the game is yet!
+
+The game is going to be an endless wave-based shooter. You'll begin on round one, where a few easy enemies will spawn around the map. Eventually, the waves will get harder and harder, at which point you'll most likely die. That's the plan, anyways. We are still trying to figure out a lot about where this game is going, and we're going to try and get the community involved with the game decisions if we can. For now, here is what we're thinking about:
+
+- Originally we planned for a top-down view, but now we are considering an isometric one. 
+- The theme is probably going to medevial (so expect swords and arrows, etc).
+- We're considering classes, or some sort of leveling system, but that's further down the road.
+- I'm not sure what the plan is for in-game power-ups yet.
+- Multiplayer is a maybe, we'll see where the game takes us.
+- We're discussing implementing destroyable tiles, so you can setup some sort of base to funnel the enemies, but only if we can work out the technical and gameplay aspects.
+
+As you can see, a lot of the game ideas are still up in the air. We're uncertain about a lot, but we did this on purpose to allow ourselves some breathing room. I also want to point out that we are developing the website alongside the game, so please bear with us! 
+
+Finally, this is supposed to be a development log for us, and for you, but it may also act like a blog. I don't know. Is there a difference? I would assume that a blog has longer posts compared to development logs. Ahh well, it will probably contain long and short posts, so expect both!
+
+Thanks for reading! :)

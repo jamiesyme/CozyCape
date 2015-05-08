@@ -1,0 +1,6 @@
+=== February 10th, 2015 ===
+Death! Death to everything!
+
+Enemies now have health! They have no death animation yet... but disappearing after a few hits is a start!
+
+I also added health to the player. The player can take 10 (invisible) hits before dying a quick and abrupt death. The player ALSO lacks a death animation. As a placeholder, a pure red screen represents death. I've always said I'm a minimalist!

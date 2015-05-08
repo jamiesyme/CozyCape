@@ -1,0 +1,6 @@
+=== February 8th, 2015 ===
+Are arrows are no longer sticky, do-nothing balls! They're sticky do-nothing sticks! 
+
+That's basically the whole update here, just changed the arrow shape.
+
+Enemy health is next!

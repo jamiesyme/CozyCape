@@ -1,0 +1,24 @@
+=== February 18th, 2015 ===
+Everything has changed.
+
+Well, not in the game. The game functionality is almost exactly the same as it was before the refactor. But the game framework has been almost completely reworked.
+
+There are a few main components now that every game object will be made of:
+ - Entity (name/type for identification)
+ - Tickable (for objects that should update every frame)
+ - Drawable (for objects that should be rendered)
+ - Trigger (for objects that deal with user input/events)
+ - Body (for objects with a position and physics)
+
+The game object will just be a class that inherits/implements some (or all) of these components).
+
+SIDE NOTE: Entity is special as the game framework still makes use of an EntityManager, which will "manage" the game object and "delete" it when you remove it from the manager.
+
+
+The reason for this refactor was for customization. You can now organize tickables/drawables/triggers into layers. Layers like "enemy" layer, "arrows" layer, etc. Then you can control the order in which the layers are updated or drawn, or if they're completely disabled all together (like if the game is paused).
+
+This will make it a heck of a lot easier/cleaner to implement a hud, a menu system, etc. Everything in the game is a lot more modular this way. Or so I hope. Time will tell.
+
+I've already implemented a basic health bar in the hud. It displays the health in a zelda-like fasion (three hearts, with the option of half hearts).
+
+Next is a pause screen! Or actual waves of enemies... I'm not sure yet. But this is actually starting to feel like a game now, it's awesome!

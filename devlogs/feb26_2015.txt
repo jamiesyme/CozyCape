@@ -1,0 +1,22 @@
+=== February 26th, 2015 ===
+The combat has to change.
+
+I've just finished implementing the (VERY VERY) basic wave spawner. Before, I had a "Spawner" object that would spawn an enemy at a randomly selected location (I used four locations) every X seconds.
+
+The new method does roughly the same thing, except it alters the spawn settings as the "waves" progress. So we start out spawning three enemies (one every three seconds) with a speed of three (I know, I know...). Then, when you kill all the enemies, wave two starts, and it increases the spawn count, it increases the enemy speed, and decreases the time between enemy spawns.
+
+This works great as a (VERY VERY) basic enemy spawner. However, the enemies still suck.
+
+My finger got tired of shooting arrows after a few waves. It physically got tired of clicking. That's not good game design... I mean, I'm constructing the framework right now, I shouldn't be worried about how fun the game is. With that said, I think I'm getting to the position where I CAN start worrying about game design!
+
+So I think that's what I'll start doing. I already added health. And I have simple arrows. But I think I'll be evolving the combat system next.
+
+I know I was planning on working on the menus, but that's boring. The only reason I need menus is for the player to navigate the game. But what player is going to want to play this game in it's current state?! No one. 
+
+So, I want to add item drops. Both health and arrows. That means that the player will have a limited amount of arrows.
+
+So what about when the player runs out of arrows? Use a sword.
+
+I also want to implement a "charge" ability with both the bow and sword. The longer you charge the attack, the stronger it is. Along with this, I'll probably need to implement particle effects and camera shake (hopefully I can put off sound for a bit longer) as this will add some "punch" to the weapons! It will make them feel like they're actually making an impact.
+
+Anywho, I've rambled enough for one post! I'll let you know how it all goes.
