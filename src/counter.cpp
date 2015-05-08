@@ -52,3 +52,10 @@ float Counter::timeUntilGoal() const
 		return 0.0f;
 	return mGoal - mTime;
 }
+
+void Counter::forceToGoal()
+{
+	if (reachedGoal())
+		return;
+	mTime = mGoal;
+}

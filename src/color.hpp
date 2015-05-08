@@ -27,5 +27,5 @@ public:
 	static Color Black;
 	static Color White;
 	static Color Grey;
-	static Color Clear;
+	static Color Transparent;
 };

@@ -1,12 +1,9 @@
 #include "enemy.hpp"
-#include "gameobjectgod.hpp"
-#include "tickgod.hpp"
-#include "drawgod.hpp"
-#include "physicsgod.hpp"
 #include "player.hpp"
 #include "pathfinder.hpp"
 #include "commongl.hpp"
 #include "arrow.hpp"
+#include "sword.hpp"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
@@ -15,10 +12,12 @@ Enemy::Enemy()
 	mScanTimer.setGoal(0.2f);
 	mPathTimer.setGoal(1.0f);
 	mAttackTimer.setGoal(0.75f);
+	mAttackTimer.forceToGoal();
 	mPlayer     = 0;
 	mPathFinder = 0;
 	mPathIndex  = -1;
 	mIsPlayerInSight = false;
+	mSpeed       = 4.5f;
 	mHealth      = 4.0f;
 	mForceAffect = -1.0f;
 	setType("enemy");
@@ -42,6 +41,7 @@ void Enemy::onKill()
 	getTickGod()->removeFrom("enemies", this);
 	getDrawGod()->removeFrom("enemies", this);
 	getPhysicsGod()->remove(this);
+	broadcastMessage("enemy died");
 }
 
 void Enemy::onTick(float dt)
@@ -75,6 +75,10 @@ void Enemy::onTick(float dt)
 		mForceAffect -= dt * 4;
 		return;
 	}
+	
+	// If we just attacked, we have to pause
+	if (!mAttackTimer.reachedGoal())
+		return;
 	
 	// Update line of sight flag
 	if (mScanTimer.reachedGoal()) 
@@ -145,23 +149,34 @@ void Enemy::onTick(float dt)
 
 void Enemy::onDraw()
 {
-	if (mIsPlayerInSight) CommonGL::setColor(Color::Red);
-	else                  CommonGL::setColor(Color::Grey);
+	CommonGL::setColor(Color::Grey);
+	if (mIsPlayerInSight) 
+		CommonGL::setColor(Color::Red);
+	if (!mAttackTimer.reachedGoal())
+		CommonGL::setColor(Color(0.3f, 0.3f, 0.9f));           
 	CommonGL::drawCircle(getPosition(), getBodyRadius(), 24);
 	CommonGL::setColor(Color::White);
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
 }
 
-void Enemy::onMessage(const std::string& s, void* d)
+void Enemy::onMessage(const std::string& msg, GameObject* go)
 {
-	if (s == "hit by arrow") {
-		Arrow* arrow = (Arrow*)d;
-		Vec2 arrowDir = arrow->getDirection();
+	if (msg == "hit by arrow") {
+		Arrow* arrow  = (Arrow*)go;
 		Vec2 eToArrow = (getPosition() - arrow->getPosition()).normalized();
-		float dot = eToArrow.dot(arrowDir);
-		//mForce = eToArrow;
-		mForce = arrowDir;
-		mForceAffect = dot;
+		float dot     = eToArrow.dot(arrow->getDirection());
+		mForce        = arrow->getDirection();
+		mForceAffect  = dot;
+		
+		damage(1.0f);
+	} else
+	
+	if (msg == "hit by sword") {
+		Sword* sword  = (Sword*)go;
+		Vec2 eToArrow = (getPosition() - sword->getPosition()).normalized();
+		float dot     = eToArrow.dot(sword->getDirection());
+		mForce        = sword->getDirection();
+		mForceAffect  = dot;
 		
 		damage(1.0f);
 	}
@@ -184,9 +199,14 @@ float Enemy::getAttackRange() const
 	return getBodyRadius() + 0.1f;
 }
 
+void Enemy::setSpeed(const float speed)
+{
+	mSpeed = speed;
+}
+
 float Enemy::getSpeed() const
 {
-	return 4.5f;
+	return mSpeed;
 }
 
 void Enemy::damage(const float dmg)

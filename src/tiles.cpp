@@ -2,8 +2,6 @@
 #include "raycast.hpp"
 #include "image.hpp"
 #include "commongl.hpp"
-#include "drawgod.hpp"
-#include "physicsgod.hpp"
 #include <cmath>
 
 Tiles::Tiles()

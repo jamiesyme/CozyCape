@@ -18,12 +18,11 @@ GameObjectGod::~GameObjectGod()
 {
 	// Remove all the remaining game objects
 	for (unsigned int i = 0; i < mGos.size(); i++)
-		mGosToRemove.push_back(mGos[i]);
+		delete mGos[i];
 	for (unsigned int i = 0; i < mGosToAdd.size(); i++)
-		mGosToRemove.push_back(mGosToAdd[i]);
-	mGos.clear();
-	mGosToAdd.clear();
-	update();
+		delete mGosToAdd[i];
+	for (unsigned int i = 0; i < mGosToRemove.size(); i++)
+		delete mGosToRemove[i];
 	
 	// Delete the gods
 	delete mTickGod;

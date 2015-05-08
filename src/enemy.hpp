@@ -21,11 +21,13 @@ public:
 	void onKill();
 	void onTick(float dt);
 	void onDraw();
-	void onMessage(const std::string& s, void* d);
+	void onMessage(const std::string& msg, GameObject* go);
 	
 	void moveTowards(const Vec2& p, const float dt);
 	float getSightRange() const;
 	float getAttackRange() const;
+	
+	void  setSpeed(const float speed);
 	float getSpeed() const;
 	
 	void damage(const float dmg);
@@ -39,6 +41,7 @@ private:
 	PathInfo    mPath;
 	int         mPathIndex;
 	bool  mIsPlayerInSight;
+	float mSpeed;
 	float mHealth;
 	
 	Vec2  mForce;

@@ -14,6 +14,7 @@ public:
 	float getGoal()       const;
 	bool  reachedGoal()   const;
 	float timeUntilGoal() const;
+	void  forceToGoal();
 
 private:
 	float mTime;

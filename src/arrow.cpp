@@ -1,7 +1,4 @@
 #include "arrow.hpp"
-#include "gameobjectgod.hpp"
-#include "tickgod.hpp"
-#include "drawgod.hpp"
 #include "commongl.hpp"
 #include <cmath>
 
@@ -19,14 +16,14 @@ Arrow::~Arrow()
 
 void Arrow::onInit()
 {
-	getTickGod()->addTo("arrows", this);
-	getDrawGod()->addTo("arrows", this);
+	getTickGod()->addTo("weapons", this);
+	getDrawGod()->addTo("weapons", this);
 }
 
 void Arrow::onKill()
 {
-	getTickGod()->removeFrom("arrows", this);
-	getDrawGod()->removeFrom("arrows", this);
+	getTickGod()->removeFrom("weapons", this);
+	getDrawGod()->removeFrom("weapons", this);
 }
 
 void Arrow::onTick(float dt)

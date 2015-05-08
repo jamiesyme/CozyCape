@@ -13,6 +13,12 @@ namespace CommonGL {
 	{
 		glEnable(GL_DEPTH_TEST);
 	}
+	
+	void enableTextures()
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 
 	void setColor(Color c)
 	{

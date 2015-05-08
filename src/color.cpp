@@ -6,7 +6,7 @@ Color Color::Blue(0.0f, 0.0f, 1.0f);
 Color Color::Black(0.0f, 0.0f, 0.0f);
 Color Color::White(1.0f, 1.0f, 1.0f);
 Color Color::Grey(0.5f, 0.5f, 0.5f);
-Color Color::Clear(1.0f, 1.0f, 1.0f, 0.0f);
+Color Color::Transparent(1.0f, 1.0f, 1.0f, 0.0f);
 
 Color::Color()
 {

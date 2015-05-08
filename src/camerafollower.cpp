@@ -1,7 +1,6 @@
 #include "camerafollower.hpp"
 #include "camera.hpp"
 #include "body.hpp"
-#include "tickgod.hpp"
 
 CameraFollower::CameraFollower(Camera* cam)
 {

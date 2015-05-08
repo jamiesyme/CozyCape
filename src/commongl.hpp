@@ -6,6 +6,7 @@
 namespace CommonGL {
 	void enableAlphaBlend();
 	void enableDepthTest();
+	void enableTextures();
 
 	void setColor(Color c);
 	void setBgColor(Color c);

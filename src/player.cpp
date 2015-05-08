@@ -1,18 +1,13 @@
 #include "player.hpp"
+#include "bow.hpp"
+#include "sword.hpp"
 #include "keyboard.hpp"
 #include "camera.hpp"
-#include "arrow.hpp"
-#include "gameobjectgod.hpp"
-#include "tickgod.hpp"
-#include "drawgod.hpp"
-#include "triggergod.hpp"
-#include "physicsgod.hpp"
 #include "commongl.hpp"
 #include <cmath>
 
 Player::Player()
 {
-	mIsArrowHeld = false;
 	mHealth = 6.0f;
 	setType("player");
 	setBodyCircle(0.4f);
@@ -29,10 +24,17 @@ void Player::onInit()
 	getDrawGod()->addTo("players", this);
 	getTriggerGod()->addTo("game", this);
 	getPhysicsGod()->add(this);
+	
+	mBow = new Bow(this);
+	getGod()->manage(mBow);
+	mSword = new Sword(this);
+	getGod()->manage(mSword);
+	mWeapon = mBow;
 }
 
 void Player::onKill()
 {
+	getGod()->remove(mBow);
 	getTickGod()->removeFrom("players", this);
 	getDrawGod()->removeFrom("players", this);
 	getTriggerGod()->removeFrom("game", this);
@@ -89,9 +91,9 @@ void Player::onDraw()
 	CommonGL::drawCircle(getPosition(), getBodyRadius() * 0.8f, 24);
 }
 
-void Player::onMessage(const std::string& s, void* d)
+void Player::onMessage(const std::string& msg, GameObject* go)
 {
-	if (s == "hit by enemy") 
+	if (msg == "hit by enemy") 
 	{
 		damage(1.0f);
 	}
@@ -113,35 +115,15 @@ void Player::onMouseMove(const int x, const int y)
 void Player::onMouseDown(const std::string& button)
 {
 	if (button == "left")
-		pullArrow();
+		if (mWeapon != 0)
+			mWeapon->ready();
 }
 
 void Player::onMouseUp(const std::string& button)
 {
 	if (button == "left")
-		releaseArrow();
-}
-
-void Player::pullArrow()
-{
-	mIsArrowHeld = true;
-}
-
-void Player::releaseArrow()
-{
-	if (!mIsArrowHeld)
-		return;
-	
-	Arrow* arrow = new Arrow();
-	arrow->setRotation(getRotation());
-	arrow->setPosition(getPosition());
-	getGod()->manage(arrow);
-	mIsArrowHeld = false;
-}
-
-bool Player::isArrowHeld() const
-{
-	return mIsArrowHeld;
+		if (mWeapon != 0)
+			mWeapon->attack();
 }
 
 float Player::getSpeed() const

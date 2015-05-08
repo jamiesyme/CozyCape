@@ -1,11 +1,8 @@
 #pragma once
 
 #include <string>
-class GameObjectGod;
-class TickGod;
-class DrawGod;
-class TriggerGod;
-class PhysicsGod;
+#include <vector>
+#include "gameobjectgod.hpp"
 
 class GameObject {
 public:
@@ -14,7 +11,11 @@ public:
 	
 	virtual void onInit();
 	virtual void onKill();
-	virtual void onMessage(const std::string& s, void* d);
+	
+	void    addListener(GameObject* go);
+	void removeListener(GameObject* go);
+	void broadcastMessage(const std::string& msg);
+	virtual void onMessage(const std::string& msg, GameObject* go);
 	
 	void setName(const std::string& name);
 	void setType(const std::string& type);
@@ -33,4 +34,5 @@ private:
 	GameObjectGod* mGod;
 	std::string mName;
 	std::string mType;
+	std::vector<GameObject*> mListeners;
 };

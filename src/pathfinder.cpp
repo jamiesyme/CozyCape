@@ -1,6 +1,5 @@
 #include "pathfinder.hpp"
 #include "tiles.hpp"
-#include "gameobjectgod.hpp"
 #include <cmath>
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))

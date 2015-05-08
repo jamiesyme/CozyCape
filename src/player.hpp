@@ -5,6 +5,9 @@
 #include "tickable.hpp"
 #include "drawable.hpp"
 #include "trigger.hpp"
+class Bow;
+class Sword;
+class Weapon;
 
 class Player : public GameObject,
                public Body,
@@ -19,14 +22,10 @@ public:
 	void onKill();
 	void onTick(float dt);
 	void onDraw();
-	void onMessage(const std::string& s, void* d);
+	void onMessage(const std::string& msg, GameObject* go);
 	void onMouseMove(const int x, const int y);
 	void onMouseDown(const std::string& button);
 	void onMouseUp(const std::string& button);
-	
-	void    pullArrow();
-	void releaseArrow();
-	bool isArrowHeld() const;
 	
 	float getSpeed() const;
 
@@ -34,6 +33,8 @@ public:
 	float getHealth() const;
 
 private:
-	bool  mIsArrowHeld;
+	Bow*    mBow;
+	Sword*  mSword;
+	Weapon* mWeapon;
 	float mHealth;
 };

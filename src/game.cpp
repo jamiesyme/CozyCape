@@ -5,17 +5,16 @@
 #include "keyboard.hpp"
 #include "mouse.hpp"
 #include "gameobjectgod.hpp"
-#include "tickgod.hpp"
-#include "drawgod.hpp"
-#include "triggergod.hpp"
-#include "physicsgod.hpp"
 #include "tiles.hpp"
 #include "pathfinder.hpp"
 #include "player.hpp"
-#include "spawner.hpp"
+#include "wavebrain.hpp"
+#include "wavehud.hpp"
 #include "camerafollower.hpp"
 #include "healthhud.hpp"
 #include "commongl.hpp"
+#include "fonthelper.hpp"
+#include "discobackground.hpp"
 #include <iostream>
 
 // "Game" specific data
@@ -45,31 +44,35 @@ void Game::run()
 	Events::addEar(&mWindowCloseEar);
 	Keyboard::init();
 	Mouse::init();
+	FontHelper::init();
+	FontHelper::setAlias("../res/VeraMono.ttf", "Vera");
 	
 	// Initialize opengl
 	CommonGL::setBgColor(Color(0.4f, 0.1f, 0.1f));
 	CommonGL::enableAlphaBlend();
+	CommonGL::enableTextures();
 	
 	// Create the game object god
 	mGoGod = new GameObjectGod();
 	
-	// Create the layers
-	{
+	{ // Create the layers
 		{ // Tick Layers
 			TickGod* tickGod = mGoGod->getTickGod();
 			TickLayer* l1 = tickGod->addLayer("enemies");
 			TickLayer* l2 = tickGod->addLayer("players");
-			TickLayer* l3 = tickGod->addLayer("arrows");
+			TickLayer* l3 = tickGod->addLayer("weapons");
 			TickLayer* l4 = tickGod->addLayer("spawners");
 			TickLayer* l5 = tickGod->addLayer("game");
 			TickLayer* l6 = tickGod->addLayer("physics");
 			TickLayer* l7 = tickGod->addLayer("post");
+			TickLayer* l8 = tickGod->addLayer("hud");
 			l5->add(l1);
 			l5->add(l2);
 			l5->add(l3);
 			l5->add(l4);
 			l5->add(l6);
 			l5->add(l7);
+			l5->add(l8);
 			tickGod->setActiveLayer("game");
 			
 			// HACK FOR PHYSICS
@@ -84,7 +87,7 @@ void Game::run()
 			c2->set(Vec2(0.0f, 0.0f), Vec2(800.0f, 600.0f));
 			DrawLayer* l1 = drawGod->addLayer("enemies");
 			DrawLayer* l2 = drawGod->addLayer("players");
-			DrawLayer* l3 = drawGod->addLayer("arrows");
+			DrawLayer* l3 = drawGod->addLayer("weapons");
 			DrawLayer* l4 = drawGod->addLayer("map");
 			DrawLayer* l5 = drawGod->addLayer("game");
 			DrawLayer* l6 = drawGod->addLayer("post");
@@ -118,13 +121,14 @@ void Game::run()
 		mGoGod->manage(pf);
 	}
 	
-	{ // Create the spawner
-		Spawner* spawner = new Spawner();
-		spawner->addPoint(Vec2(13.5f, 13.5f));
-		spawner->addPoint(Vec2(27.5f, 11.5f));
-		spawner->addPoint(Vec2( 4.5f, 12.5f));
-		spawner->addPoint(Vec2(24.5f, 30.5f));
-		mGoGod->manage(spawner);
+	{ // Create the wave brain
+		WaveBrain* waveBrain = new WaveBrain();
+		mGoGod->manage(waveBrain);
+		
+		{ // Create the wave hud
+			WaveHud* wh = new WaveHud();
+			mGoGod->manage(wh);
+		}
 	}
 	
 	{ // Create the player
@@ -143,6 +147,10 @@ void Game::run()
 			HealthHud* hh = new HealthHud(player);
 			mGoGod->manage(hh);
 		}
+	}
+	
+	{ // Create the disco background
+		mGoGod->manage(new DiscoBackground());
 	}
 	
 	// Run the game loop
@@ -174,6 +182,7 @@ void Game::run()
 	mGoGod = 0;
 
 	// Close the basics
+	FontHelper::kill();
 	Mouse::kill();
 	Keyboard::kill();
 	Events::removeEar(&mWindowCloseEar);

@@ -1,5 +1,4 @@
 #include "gameobject.hpp"
-#include "gameobjectgod.hpp"
 
 GameObject::GameObject()
 {
@@ -22,7 +21,35 @@ void GameObject::onKill()
 	// Do nothing.
 }
 
-void GameObject::onMessage(const std::string& s, void* d)
+void GameObject::addListener(GameObject* go)
+{
+	if (go == 0)
+		return;
+	for (unsigned int i = 0; i < mListeners.size(); i++)
+		if (mListeners[i] == go)
+			return;
+	mListeners.push_back(go);
+}
+
+void GameObject::removeListener(GameObject* go)
+{
+	if (go == 0)
+		return;
+	for (unsigned int i = 0; i < mListeners.size(); i++) {
+		if (mListeners[i] == go) {
+			mListeners.erase(mListeners.begin() + i);
+			return;
+		}
+	}
+}
+
+void GameObject::broadcastMessage(const std::string& msg)
+{
+	for (unsigned int i = 0; i < mListeners.size(); i++)
+		mListeners[i]->onMessage(msg, this);
+}
+
+void GameObject::onMessage(const std::string& msg, GameObject* go)
 {
 	// Do nothing.
 }

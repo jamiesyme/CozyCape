@@ -3,15 +3,11 @@
 #include <string>
 #include <vector>
 #include "raycast.hpp"
+#include "tickgod.hpp"
+#include "drawgod.hpp"
+#include "triggergod.hpp"
+#include "physicsgod.hpp"
 class GameObject;
-class Tickable;
-class Drawable;
-class Trigger;
-class Body;
-class TickGod;
-class DrawGod;
-class TriggerGod;
-class PhysicsGod;
 
 class GameObjectGod {
 public:
